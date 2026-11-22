@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": 2,
  "domains": [
   {
    "d": "gov.il",
@@ -806,6 +806,261 @@
    "level": 1,
    "cat": "דואר וואלה",
    "exact": true
+  },
+  {
+   "d": "creditdata.org.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankleumi.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankhapoalim.biz",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankhapoalim-corp.biz",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankhapoalim.com",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "poalimlinks.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "resource.bank",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bitpay.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "peilim.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "poalimcm.com",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "telebank.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "openbanking.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankmassad.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankotsar.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "pagi.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "bankyahav.net",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "yahav.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "postalfinance.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "leumi-card.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "gamla-harel.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "harelmashkanta.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "menora.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "clalnet.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "phoenixfinancial.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "5555.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "moreinvest.co.il",
+   "level": 1,
+   "cat": "בנקים, אשראי, ביטוח והשקעות"
+  },
+  {
+   "d": "clalit.org.il",
+   "level": 1,
+   "cat": "בריאות"
+  },
+  {
+   "d": "clalitapps.co.il",
+   "level": 1,
+   "cat": "בריאות"
+  },
+  {
+   "d": "clalitsmile.co.il",
+   "level": 1,
+   "cat": "בריאות"
+  },
+  {
+   "d": "clalitmashlima.co.il",
+   "level": 1,
+   "cat": "בריאות"
+  },
+  {
+   "d": "maccabi-health.co.il",
+   "level": 1,
+   "cat": "בריאות"
+  },
+  {
+   "d": "mac.org.il",
+   "level": 1,
+   "cat": "בריאות"
+  },
+  {
+   "d": "kavim-t.com",
+   "level": 1,
+   "cat": "תחבורה, כבישים וחניה"
+  },
+  {
+   "d": "danbadarom.co.il",
+   "level": 1,
+   "cat": "תחבורה, כבישים וחניה"
+  },
+  {
+   "d": "nateev.com",
+   "level": 1,
+   "cat": "תחבורה, כבישים וחניה"
+  },
+  {
+   "d": "metronit.co.il",
+   "level": 1,
+   "cat": "תחבורה, כבישים וחניה"
+  },
+  {
+   "d": "cello-app.com",
+   "level": 1,
+   "cat": "תחבורה, כבישים וחניה"
+  },
+  {
+   "d": "supergas-power.co.il",
+   "level": 1,
+   "cat": "חשבונות, תשתיות ותקשורת"
+  },
+  {
+   "d": "myavivim.co.il",
+   "level": 1,
+   "cat": "חשבונות, תשתיות ותקשורת"
+  },
+  {
+   "d": "postil.co.il",
+   "level": 1,
+   "cat": "חשבונות, תשתיות ותקשורת"
+  },
+  {
+   "d": "shva-online.co.il",
+   "level": 1,
+   "cat": "סליקה ותשלומים"
+  },
+  {
+   "d": "pelecard.com",
+   "level": 1,
+   "cat": "סליקה ותשלומים"
+  },
+  {
+   "d": "hyp.co.il",
+   "level": 1,
+   "cat": "סליקה ותשלומים"
+  },
+  {
+   "d": "icredit.co.il",
+   "level": 1,
+   "cat": "סליקה ותשלומים"
+  },
+  {
+   "d": "perfdrive.com",
+   "level": 1,
+   "cat": "תשתית אתרים (רקע)"
+  },
+  {
+   "d": "hcaptcha.com",
+   "level": 1,
+   "cat": "תשתית אתרים (רקע)"
+  },
+  {
+   "d": "awswaf.com",
+   "level": 1,
+   "cat": "תשתית אתרים (רקע)"
+  },
+  {
+   "d": "sefaria.org",
+   "level": 2,
+   "cat": "תורה ויהדות"
+  },
+  {
+   "d": "zoom.com",
+   "level": 2,
+   "cat": "עבודה וכלים"
+  },
+  {
+   "d": "kkl-jnf.org",
+   "level": 2,
+   "cat": "חירום, טיולים וטיסות"
+  },
+  {
+   "d": "yeshiva.co",
+   "level": 2,
+   "cat": "תורה ויהדות"
   }
  ]
 }

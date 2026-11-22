@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "domains": [
   {
    "d": "gov.il",
@@ -1061,6 +1061,16 @@
    "d": "yeshiva.co",
    "level": 2,
    "cat": "תורה ויהדות"
+  },
+  {
+   "d": "sumit.co.il",
+   "level": 2,
+   "cat": "עבודה וכלים"
+  },
+  {
+   "d": "sumit.cloud",
+   "level": 2,
+   "cat": "עבודה וכלים"
   }
  ]
 }

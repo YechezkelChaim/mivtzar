@@ -46,7 +46,8 @@ footer a{margin:0 8px}
 <p><strong>א. שמות של אתרים מותרים – לשירות DNS.</strong> כדי לפתוח אתר, הטלפון צריך לברר את הכתובת שלו ("שאילתת DNS"). מבצר בודק כל שאילתה בתוך הטלפון. שמות של אתרים חסומים <em>לא יוצאים מהטלפון</em>. שמות של אתרים מותרים נשלחים לשירות DNS ציבורי כדי לקבל את הכתובת שלהם:</p>
 <ul>
   <li><strong>Cloudflare</strong> (שירות "Cloudflare for Families", כשסינון אתרים למבוגרים פעיל, או שירות 1.1.1.1 הרגיל). השירות מקבל את שם האתר ואת כתובת ה-IP של החיבור שלך. מדיניות הפרטיות של Cloudflare למשתמשי השירות: <a href="https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/">developers.cloudflare.com/1.1.1.1/privacy</a>.</li>
-  <li>אם Cloudflare לא זמין, השאילתה נשלחת כגיבוי ל-<strong>CleanBrowsing</strong> (כשסינון למבוגרים פעיל) או ל-<strong>Google Public DNS</strong>.</li>
+  <li><strong>CleanBrowsing</strong> (שירות "Family Filter"): כשסינון אתרים למבוגרים פעיל, השם נבדק במקביל גם אצלו, והאתר נחסם אם אחד מהשירותים חוסם אותו. גם CleanBrowsing מקבל את שם האתר ואת כתובת ה-IP של החיבור. מדיניות הפרטיות שלו: <a href="https://cleanbrowsing.org/privacy">cleanbrowsing.org/privacy</a>.</li>
+  <li>כשסינון למבוגרים כבוי, אם Cloudflare לא זמין, השאילתה נשלחת כגיבוי ל-<strong>Google Public DNS</strong>.</li>
 </ul>
 <p><strong>ב. בדיקת עדכונים ורשימת האתרים – ל-GitHub.</strong> פעם בכמה שעות, וכשנכנסים לאפליקציה, היא בודקת אם יש גרסה חדשה ומורידה את רשימת האתרים המאושרים מאתר GitHub (חברת Microsoft). GitHub מקבלת בבקשות האלה את כתובת ה-IP ואת סוג המכשיר, כמו בכל כניסה לאתר. לא נשלח שום מידע אחר.</p>
 <p><strong>ג. אתר ההורדה.</strong> אתר ההורדה מאוחסן ב-GitHub Pages. GitHub מקבלת את כתובת ה-IP של מי שנכנס לאתר. האתר לא משתמש בעוגיות, לא מפעיל כלי ניתוח או פרסום, ולא טוען גופנים או קבצים משירותים אחרים.</p>

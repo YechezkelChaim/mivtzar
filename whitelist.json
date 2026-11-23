@@ -1,5 +1,5 @@
 {
- "version": 3,
+ "version": 4,
  "domains": [
   {
    "d": "gov.il",
@@ -1071,6 +1071,128 @@
    "d": "sumit.cloud",
    "level": 2,
    "cat": "עבודה וכלים"
+  }
+ ],
+ "apps": [
+  {
+   "p": "com.ideomobile.hapoalim",
+   "name": "בנק הפועלים"
+  },
+  {
+   "p": "com.bnhp.businessapp",
+   "name": "בנק הפועלים – עסקים"
+  },
+  {
+   "p": "com.bnhp.payments.paymentsapp",
+   "name": "ביט"
+  },
+  {
+   "p": "com.leumi.leumiwallet",
+   "name": "בנק לאומי"
+  },
+  {
+   "p": "com.ideomobile.discount",
+   "name": "בנק דיסקונט"
+  },
+  {
+   "p": "com.ideomobile.DiscountBusiness",
+   "name": "דיסקונט – עסקים"
+  },
+  {
+   "p": "com.ideomobile.mercantile",
+   "name": "בנק מרכנתיל"
+  },
+  {
+   "p": "com.MizrahiTefahot.nh",
+   "name": "מזרחי טפחות"
+  },
+  {
+   "p": "com.fibi.nativeapp",
+   "name": "הבינלאומי"
+  },
+  {
+   "p": "com.otsar.nativeapp",
+   "name": "אוצר החייל"
+  },
+  {
+   "p": "com.masad.nativeapp",
+   "name": "בנק מסד"
+  },
+  {
+   "p": "com.payboxapp",
+   "name": "PayBox"
+  },
+  {
+   "p": "il.co.isracard.MobileDashboard",
+   "name": "ישראכרט"
+  },
+  {
+   "p": "com.onoapps.cal4u",
+   "name": "כאל"
+  },
+  {
+   "p": "com.ideomobile.leumicard",
+   "name": "מקס"
+  },
+  {
+   "p": "com.ideomobile.maccabi",
+   "name": "מכבי"
+  },
+  {
+   "p": "clalit.android",
+   "name": "כללית"
+  },
+  {
+   "p": "org.meuhedet.android",
+   "name": "מאוחדת"
+  },
+  {
+   "p": "leumit.mobile",
+   "name": "לאומית"
+  },
+  {
+   "p": "com.pcentra.ravkavonlinemobile",
+   "name": "רב-קו"
+  },
+  {
+   "p": "co.hopon.client",
+   "name": "HopOn"
+  },
+  {
+   "p": "com.tranzmate",
+   "name": "Moovit"
+  },
+  {
+   "p": "com.waze",
+   "name": "Waze"
+  },
+  {
+   "p": "com.egged.egg",
+   "name": "אגד"
+  },
+  {
+   "p": "com.moblin.israeltrain",
+   "name": "רכבת ישראל"
+  },
+  {
+   "p": "com.unicell.pangoandroid",
+   "name": "פנגו"
+  },
+  {
+   "p": "air.com.cellogroup.Cellopark",
+   "name": "סלופארק"
+  },
+  {
+   "p": "com.israelpost.israelpost",
+   "name": "דואר ישראל"
+  },
+  {
+   "p": "com.ewavemobile.electriccompany",
+   "name": "חברת החשמל"
+  },
+  {
+   "p": "com.govil.mygov",
+   "name": "gov.il – האזור האישי"
   }
  ]
 }

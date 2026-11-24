@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>מבצר – ניהול</title>
+<style>
+  :root { --blue:#1E4FA3; --dark:#123572; --orange:#F28C1E; --bg:#F4F6FA; --text:#1B2433; --muted:#5B6474; --green:#1E8E4E; --red:#B3261E; --line:#E1E6EF; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:"Segoe UI",Arial,sans-serif; font-size:16px; }
+  header { background:var(--blue); color:#fff; padding:14px 18px; display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:21px; margin:0; flex:1; }
+  header button { width:auto; margin:0; padding:8px 14px; font-size:14px; background:#fff; color:var(--blue); border-color:#fff; }
+  main { max-width:760px; margin:0 auto; padding:14px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px; }
+  h2 { margin:0 0 8px; font-size:18px; }
+  p, .muted { color:var(--muted); line-height:1.5; margin:4px 0 10px; }
+  input[type=text] { width:100%; font-size:18px; padding:10px 12px; border:2px solid #C9D2E0; border-radius:10px; }
+  input[type=text]:focus { outline:none; border-color:var(--orange); }
+  button { font-family:inherit; font-size:16px; padding:11px 14px; border-radius:12px; border:2px solid var(--blue); background:var(--blue); color:#fff; cursor:pointer; margin-top:8px; }
+  button.sec { background:#fff; color:var(--blue); }
+  button.danger { background:#fff; color:var(--red); border-color:var(--red); }
+  .row { display:flex; gap:8px; align-items:center; }
+  .row > * { flex:1; }
+  .dev { display:flex; justify-content:space-between; align-items:center; padding:12px 4px; border-top:1px solid var(--line); cursor:pointer; }
+  .dev:first-of-type { border-top:0; }
+  .dev b { font-size:17px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-left:6px; }
+  .tog { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--line); gap:10px; }
+  .tog:first-of-type { border-top:0; }
+  .tog small { display:block; color:var(--muted); font-size:13px; margin-top:2px; }
+  .sw { position:relative; width:52px; height:30px; flex:none; }
+  .sw input { opacity:0; width:0; height:0; }
+  .sw span { position:absolute; inset:0; background:#C9D2E0; border-radius:30px; transition:.15s; }
+  .sw span:before { content:""; position:absolute; width:24px; height:24px; right:3px; top:3px; background:#fff; border-radius:50%; transition:.15s; }
+  .sw input:checked + span { background:var(--orange); }
+  .sw input:checked + span:before { transform:translateX(-22px); }
+  .badge { font-size:12px; padding:2px 8px; border-radius:20px; background:#FFF1E0; color:#8A4A00; margin-right:6px; }
+  textarea { width:100%; min-height:90px; font-size:15px; padding:10px; border:2px solid #C9D2E0; border-radius:10px; direction:ltr; }
+  .apps { max-height:320px; overflow:auto; border:1px solid var(--line); border-radius:10px; padding:4px 10px; }
+  .apps label { display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); }
+  .msg { min-height:1.3em; font-weight:600; }
+  .ok { color:var(--green); } .err { color:var(--red); }
+  .hide { display:none; }
+</style>
+</head>
+<body>
+<header><h1>מבצר – ניהול</h1><button id="out" class="hide">יציאה</button></header>
+<main>
+  <div id="login" class="card hide">
+    <h2>כניסה למנהל</h2>
+    <p>הכניסה רק עם חשבון הגוגל של מנהל מבצר.</p>
+    <button id="gin">כניסה עם Google</button>
+    <div class="msg err" id="lerr"></div>
+  </div>
+
+  <div id="home" class="hide">
+    <div class="card">
+      <h2>חיבור מכשיר חדש</h2>
+      <p>במכשיר: מבצר ← לוח הבקרה ← "חיבור לניהול". יופיע קוד של 6 ספרות.</p>
+      <div class="row"><input type="text" id="pcode" inputmode="numeric" maxlength="7" placeholder="קוד החיבור"><input type="text" id="pname" placeholder="שם (למשל: הטלפון של משה)"></div>
+      <button id="pair">חיבור</button>
+      <div class="msg" id="pmsg"></div>
+    </div>
+    <div class="card">
+      <h2>המכשירים שלי</h2>
+      <div id="list"><p>טוען…</p></div>
+    </div>
+  </div>
+
+  <div id="device" class="hide">
+    <button class="sec" id="back">← חזרה לרשימה</button>
+    <div class="card">
+      <h2 id="dname"></h2>
+      <div class="muted" id="dinfo"></div>
+    </div>
+    <div class="card">
+      <div class="tog"><div><b>הלקוח יכול לנהל</b><small>כבוי – במכשיר אי אפשר לשנות כלום (למשל מכשיר של ילד). דלוק – הלקוח יכול לשנות את מה שמסומן "גם הלקוח".</small></div>
+        <label class="sw"><input type="checkbox" data-top="customerCanManage"><span></span></label></div>
+    </div>
+    <div class="card">
+      <h2>הגדרות</h2>
+      <div id="sets"></div>
+    </div>
+    <div class="card">
+      <h2>אתרים חסומים ידנית <span class="badge">גם הלקוח</span></h2>
+      <p>כתובת בכל שורה, למשל example.com</p>
+      <textarea id="mblock"></textarea>
+      <button id="savemb">שמירה</button>
+    </div>
+    <div class="card">
+      <h2>אפליקציות חסומות <span class="badge">גם הלקוח</span></h2>
+      <p>סמן את האפליקציות שייחסמו במכשיר הזה.</p>
+      <div class="apps" id="apps"></div>
+      <button id="saveapps">שמירה</button>
+    </div>
+    <div class="msg" id="dmsg"></div>
+    <div class="card">
+      <h2>הסרת המכשיר מהניהול</h2>
+      <p>המכשיר ימשיך לעבוד עם ההגדרות האחרונות שלו, אבל לא יופיע כאן.</p>
+      <button class="danger" id="del">הסרה מהרשימה</button>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAYt5SUbPoRNlmWoOpsYRQ0J_01WodjcmU",
+  authDomain: "mivtzar-2e5cb.firebaseapp.com",
+  projectId: "mivtzar-2e5cb",
+  storageBucket: "mivtzar-2e5cb.firebasestorage.app",
+  messagingSenderId: "647301004150",
+  appId: "1:647301004150:web:ba5023bd9f9f75c3895857"
+});
+const auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const show = id => ["login", "home", "device"].forEach(x => $(x).classList.toggle("hide", x !== id));
+
+// הגדרות. customer = גם הלקוח יכול לשנות (כשמותר לו)
+const SETTINGS = [
+  { k: "religiousNews", t: "חדשות לציבור הדתי והחרדי", d: "כל רגע, JDN, כיכר השבת, ערוץ 7 ועוד. אתרי חדשות אחרים חסומים תמיד.", customer: true, def: true },
+  { k: "googleSearch", t: "חיפוש בגוגל", d: "חיפוש בטוח בדפדפן מבצר. חיפושים לא ראויים ותמונות – חסומים תמיד.", customer: true, def: true },
+  { k: "imagesNoPeople", t: "תמונות בלי אנשים מוצגות", d: "כבוי – כל התמונות באתרים מטושטשות. דלוק – רק תמונות עם אנשים.", customer: true, def: false },
+  { k: "hotspot", t: "נקודה חמה מותרת", d: "מכשיר שמתחבר לנקודה החמה גולש בלי סינון.", customer: true, def: false },
+  { k: "waUpdates", t: "וואטסאפ: לחסום \"עדכונים\"", d: "סטטוסים וערוצים.", customer: true, def: false },
+  { k: "waPhotos", t: "וואטסאפ: להסתיר תמונות פרופיל", d: "", customer: true, def: false },
+];
+
+let unsubList = null, unsubDev = null, cur = null;
+
+$("gin").onclick = async () => {
+  $("lerr").textContent = "";
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch (e) { $("lerr").textContent = "הכניסה לא הצליחה. נסה שוב."; }
+};
+$("out").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, user => {
+  $("out").classList.toggle("hide", !user);
+  if (unsubList) { unsubList(); unsubList = null; }
+  if (!user) { show("login"); return; }
+  show("home");
+  unsubList = onSnapshot(query(collection(db, "devices"), where("paired", "==", true)), snap => {
+    const rows = [];
+    snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+    rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "he"));
+    $("list").innerHTML = rows.length ? "" : "<p>עוד אין מכשירים מחוברים.</p>";
+    rows.forEach(r => {
+      const el = document.createElement("div");
+      el.className = "dev";
+      const on = r.lastSeen && (Date.now() - r.lastSeen < 2 * 86400000);
+      el.innerHTML = `<div><span class="dot" style="background:${on ? "var(--green)" : "#C9D2E0"}"></span><b></b><div class="muted" style="margin:2px 0 0"></div></div><span>›</span>`;
+      el.querySelector("b").textContent = r.name || "מכשיר";
+      el.querySelector(".muted").textContent = `${r.model || ""} · גרסה ${r.version || "?"} · ${ago(r.lastSeen)}${r.customerCanManage ? " · הלקוח מנהל" : ""}`;
+      el.onclick = () => openDevice(r.id);
+      $("list").appendChild(el);
+    });
+  }, e => { $("list").innerHTML = '<p class="err">אין הרשאה. רק חשבון המנהל יכול להיכנס.</p>'; });
+});
+
+function ago(t) {
+  if (!t) return "לא התחבר עדיין";
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 2) return "מחובר עכשיו";
+  if (m < 60) return `לפני ${m} דקות`;
+  const h = Math.round(m / 60);
+  if (h < 48) return `לפני ${h} שעות`;
+  return `לפני ${Math.round(h / 24)} ימים`;
+}
+
+$("pair").onclick = async () => {
+  const code = $("pcode").value.replace(/\D/g, ""), name = $("pname").value.trim();
+  const msg = $("pmsg");
+  msg.className = "msg";
+  if (code.length !== 6) { msg.textContent = "הקוד הוא 6 ספרות"; msg.classList.add("err"); return; }
+  msg.textContent = "מחפש…";
+  try {
+    const s = await getDocs(query(collection(db, "devices"), where("pairCode", "==", code), where("paired", "==", false)));
+    if (s.empty) { msg.textContent = "לא נמצא מכשיר עם הקוד הזה. בדוק שהקוד במכשיר עדיין מוצג."; msg.classList.add("err"); return; }
+    const d = s.docs[0];
+    await updateDoc(d.ref, { paired: true, pairedAt: Date.now(), name: name || d.data().model || "מכשיר", customerCanManage: false,
+      settings: d.data().settings || {}, pairCode: "" });
+    msg.textContent = "✓ המכשיר חובר"; msg.classList.add("ok");
+    $("pcode").value = ""; $("pname").value = "";
+  } catch (e) { msg.textContent = "החיבור לא הצליח: " + e.message; msg.classList.add("err"); }
+};
+
+function openDevice(id) {
+  show("device");
+  if (unsubDev) unsubDev();
+  unsubDev = onSnapshot(doc(db, "devices", id), snap => {
+    if (!snap.exists()) { show("home"); return; }
+    cur = { id, ...snap.data() };
+    render();
+  });
+}
+$("back").onclick = () => { if (unsubDev) unsubDev(); unsubDev = null; show("home"); };
+
+function render() {
+  const s = cur.settings || {};
+  $("dname").textContent = cur.name || "מכשיר";
+  $("dinfo").textContent = `${cur.model || ""} · גרסת מבצר ${cur.version || "?"} · ${ago(cur.lastSeen)}`;
+  document.querySelector('[data-top="customerCanManage"]').checked = !!cur.customerCanManage;
+  const box = $("sets");
+  box.innerHTML = "";
+  SETTINGS.forEach(o => {
+    const v = s[o.k] === undefined ? o.def : !!s[o.k];
+    const row = document.createElement("div");
+    row.className = "tog";
+    row.innerHTML = `<div><b></b>${o.customer ? '<span class="badge">גם הלקוח</span>' : ""}<small></small></div><label class="sw"><input type="checkbox"><span></span></label>`;
+    row.querySelector("b").textContent = o.t;
+    row.querySelector("small").textContent = o.d;
+    const cb = row.querySelector("input");
+    cb.checked = v;
+    cb.onchange = () => save({ ["settings." + o.k]: cb.checked });
+    box.appendChild(row);
+  });
+  if (document.activeElement !== $("mblock")) $("mblock").value = (s.manualBlocked || []).join("\n");
+  const blocked = new Set(s.blockedApps || []);
+  const apps = (cur.apps || []).slice().sort((a, b) => (a.l || "").localeCompare(b.l || "", "he"));
+  $("apps").innerHTML = apps.length ? "" : '<p class="muted">המכשיר עוד לא שלח את רשימת האפליקציות.</p>';
+  apps.forEach(a => {
+    const l = document.createElement("label");
+    l.innerHTML = '<input type="checkbox"><span></span>';
+    l.querySelector("span").textContent = a.l || a.p;
+    l.querySelector("input").checked = blocked.has(a.p);
+    l.querySelector("input").dataset.p = a.p;
+    $("apps").appendChild(l);
+  });
+}
+
+async function save(fields) {
+  const m = $("dmsg");
+  m.className = "msg";
+  try { await updateDoc(doc(db, "devices", cur.id), { ...fields, settingsBy: "admin", settingsAt: Date.now() }); m.textContent = "✓ נשמר. המכשיר יתעדכן תוך כמה דקות."; m.classList.add("ok"); }
+  catch (e) { m.textContent = "השמירה לא הצליחה: " + e.message; m.classList.add("err"); }
+}
+document.querySelector('[data-top="customerCanManage"]').onchange = e => save({ customerCanManage: e.target.checked });
+$("savemb").onclick = () => save({ "settings.manualBlocked": $("mblock").value.split(/\s+/).map(x => x.trim().toLowerCase()).filter(Boolean) });
+$("saveapps").onclick = () => save({ "settings.blockedApps": [...document.querySelectorAll("#apps input:checked")].map(x => x.dataset.p) });
+$("del").onclick = async () => {
+  if (!confirm("להסיר את המכשיר מהרשימה?")) return;
+  await deleteDoc(doc(db, "devices", cur.id));
+};
+</script>
+</body>
+</html>

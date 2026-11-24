@@ -1,5 +1,5 @@
 {
- "version": 4,
+ "version": 5,
  "domains": [
   {
    "d": "gov.il",
@@ -1075,124 +1075,609 @@
  ],
  "apps": [
   {
-   "p": "com.ideomobile.hapoalim",
-   "name": "בנק הפועלים"
-  },
-  {
-   "p": "com.bnhp.businessapp",
-   "name": "בנק הפועלים – עסקים"
+   "p": "com.google.android.apps.walletnfcrel",
+   "name": "Google Wallet",
+   "c": "בנקים ותשלומים"
   },
   {
    "p": "com.bnhp.payments.paymentsapp",
-   "name": "ביט"
-  },
-  {
-   "p": "com.leumi.leumiwallet",
-   "name": "בנק לאומי"
-  },
-  {
-   "p": "com.ideomobile.discount",
-   "name": "בנק דיסקונט"
-  },
-  {
-   "p": "com.ideomobile.DiscountBusiness",
-   "name": "דיסקונט – עסקים"
-  },
-  {
-   "p": "com.ideomobile.mercantile",
-   "name": "בנק מרכנתיל"
-  },
-  {
-   "p": "com.MizrahiTefahot.nh",
-   "name": "מזרחי טפחות"
-  },
-  {
-   "p": "com.fibi.nativeapp",
-   "name": "הבינלאומי"
-  },
-  {
-   "p": "com.otsar.nativeapp",
-   "name": "אוצר החייל"
-  },
-  {
-   "p": "com.masad.nativeapp",
-   "name": "בנק מסד"
-  },
-  {
-   "p": "com.payboxapp",
-   "name": "PayBox"
-  },
-  {
-   "p": "il.co.isracard.MobileDashboard",
-   "name": "ישראכרט"
-  },
-  {
-   "p": "com.onoapps.cal4u",
-   "name": "כאל"
+   "name": "bit ביט",
+   "c": "בנקים ותשלומים"
   },
   {
    "p": "com.ideomobile.leumicard",
-   "name": "מקס"
+   "name": "max",
+   "c": "בנקים ותשלומים"
   },
   {
-   "p": "com.ideomobile.maccabi",
-   "name": "מכבי"
+   "p": "com.otsar.nativeapp",
+   "name": "אוצר החייל",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.ideomobile.discount",
+   "name": "בנק דיסקונט",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.ideomobile.hapoalim",
+   "name": "בנק הפועלים - ניהול החשבון",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.bnhp.businessapp",
+   "name": "בנק הפועלים - פועלים לעסקים",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "il.co.yahav.mobbanking",
+   "name": "בנק יהב - ניהול חשבון",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.masad.nativeapp",
+   "name": "בנק מסד",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.ideomobile.mercantile",
+   "name": "בנק מרכנתיל, مركنتيل",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.ideomobile.DiscountBusiness",
+   "name": "דיסקונט עסקים+",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.fibi.nativeapp",
+   "name": "הבנק הבינלאומי",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "il.co.isracard.MobileDashboard",
+   "name": "ישראכרט עסקים",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.onoapps.cal4u",
+   "name": "כאל- הטבות, מידע, אשראי",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.leumi.leumiwallet",
+   "name": "לאומי",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.MizrahiTefahot.nh",
+   "name": "מזרחי טפחות - ניהול חשבון",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.payboxapp",
+   "name": "פייבוקס ארנק דיגיטלי - PayBox",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.bankjerusalem",
+   "name": "בנק ירושלים",
+   "c": "בנקים ותשלומים"
+  },
+  {
+   "p": "com.harel",
+   "name": "הראל",
+   "c": "ביטוח ופנסיה"
+  },
+  {
+   "p": "com.migdal.migdalcustomers",
+   "name": "מגדל",
+   "c": "ביטוח ופנסיה"
+  },
+  {
+   "p": "com.menora_myway",
+   "name": "מנורה ON",
+   "c": "ביטוח ופנסיה"
+  },
+  {
+   "p": "com.nineoneone",
+   "name": "כלל ביטוח",
+   "c": "ביטוח ופנסיה"
   },
   {
    "p": "clalit.android",
-   "name": "כללית"
-  },
-  {
-   "p": "org.meuhedet.android",
-   "name": "מאוחדת"
+   "name": "כללית",
+   "c": "קופות חולים ובריאות"
   },
   {
    "p": "leumit.mobile",
-   "name": "לאומית"
+   "name": "לאומית",
+   "c": "קופות חולים ובריאות"
   },
   {
-   "p": "com.pcentra.ravkavonlinemobile",
-   "name": "רב-קו"
+   "p": "org.meuhedet.android",
+   "name": "מאוחדת",
+   "c": "קופות חולים ובריאות"
   },
   {
-   "p": "co.hopon.client",
-   "name": "HopOn"
+   "p": "com.ideomobile.maccabi",
+   "name": "מכבי שירותי בריאות",
+   "c": "קופות חולים ובריאות"
   },
   {
-   "p": "com.tranzmate",
-   "name": "Moovit"
+   "p": "com.moblin.superpharm",
+   "name": "סופר-פארם - יש פה הכל",
+   "c": "קופות חולים ובריאות"
   },
   {
-   "p": "com.waze",
-   "name": "Waze"
+   "p": "il.org.mda.mymada",
+   "name": "מד\"א שלי",
+   "c": "חירום והצלה"
   },
   {
-   "p": "com.egged.egg",
-   "name": "אגד"
+   "p": "com.alert.meserhadash",
+   "name": "פיקוד העורף",
+   "c": "חירום והצלה"
   },
   {
-   "p": "com.moblin.israeltrain",
-   "name": "רכבת ישראל"
+   "p": "com.red.alert",
+   "name": "צבע אדום - התרעות בזמן אמת",
+   "c": "חירום והצלה"
   },
   {
-   "p": "com.unicell.pangoandroid",
-   "name": "פנגו"
-  },
-  {
-   "p": "air.com.cellogroup.Cellopark",
-   "name": "סלופארק"
-  },
-  {
-   "p": "com.israelpost.israelpost",
-   "name": "דואר ישראל"
-  },
-  {
-   "p": "com.ewavemobile.electriccompany",
-   "name": "חברת החשמל"
+   "p": "ii.co.hotmobile.HotMobileApp",
+   "name": "My HOT mobile",
+   "c": "ממשלה ושירותים"
   },
   {
    "p": "com.govil.mygov",
-   "name": "gov.il – האזור האישי"
+   "name": "MyGov",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "il.co.orange.app.myorange",
+   "name": "MyPartner",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.b144",
+   "name": "b144 עסקים אנשים קופונים",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.cellcom.mycellcom",
+   "name": "myCellcom App",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "il.co.bezeq.my",
+   "name": "בזק Bezeq",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.israelpost.israelpost",
+   "name": "חברת דואר ישראל",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.ewavemobile.electriccompany",
+   "name": "חברת החשמל לישראל",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.pelephone_mobile",
+   "name": "פלאפון שלי",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "il.gov.ims.app",
+   "name": "השירות המטאורולוגי הישראלי",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.qnomy.myvisit.app",
+   "name": "myVisit - Instant Appointment",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.jerusalem106",
+   "name": "עיריית ירושלים 106",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "esbinaltd.harish",
+   "name": "עיריית חריש",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "esbina.elad",
+   "name": "עיריית אלעד",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "binaaltd.beitshemesh",
+   "name": "עיריית בית שמש",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.ctconnect.beitarillit",
+   "name": "ביתר עילית",
+   "c": "ממשלה ושירותים"
+  },
+  {
+   "p": "com.mashov.main",
+   "name": "משוב",
+   "c": "חינוך"
+  },
+  {
+   "p": "com.smartschool.webtop",
+   "name": "Webtop - וובטופ",
+   "c": "חינוך"
+  },
+  {
+   "p": "air.com.cellogroup.Cellopark",
+   "name": "Cello",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.egged.egg",
+   "name": "Egg: תחבורה ציבורית בזמן אמת",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.gettaxi.android",
+   "name": "Gett הזמנת מוניות ומשלוחים",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.google.android.apps.maps",
+   "name": "Google מפות",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.ubercab",
+   "name": "Uber – להזמין נסיעה",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.waze",
+   "name": "Waze: ניווט ועדכוני תנועה",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "co.hopon.client",
+   "name": "הופאון רב-פס: אוטובוסים ורכבות",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.tranzmate",
+   "name": "מוביט: ניווט ותכנון מסלולים",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.unicell.pangoandroid",
+   "name": "פנגו - Pango",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.pcentra.ravkavonlinemobile",
+   "name": "רב-קו אונליין - טעינת רב-קו",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.moblin.israeltrain",
+   "name": "רכבת ישראל -Israel Railways",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "il.co.yellow.app",
+   "name": "הארנק הדיגיטלי של פז yellow",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.sonol.mobileapp",
+   "name": "עוצרים בסונול למלא אנרגיה",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "led.android.mentaplus",
+   "name": "דלק - אפליקציה לתדלוק והטבות",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "il.co.elal.mobile",
+   "name": "טיסות אל על",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.iaa.mobile",
+   "name": "נמל התעופה בן גוריון",
+   "c": "תחבורה וחניה"
+  },
+  {
+   "p": "com.artscroll.digitallibrary",
+   "name": "ArtScroll Digital Library",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "org.sefaria.sefaria",
+   "name": "Sefaria - ספריא",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "net.linnovate.hidabroot",
+   "name": "הידברות | Hidabroot",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.karriapps.smartsiddurlite",
+   "name": "הסידור החכם",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "cc.zmanim.app",
+   "name": "זמנים - זמני היום וזמני שבת",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "net.sf.times",
+   "name": "זמנים הלכתיים",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.lionscribe.hebdate",
+   "name": "לוח עברי",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.khl.www2",
+   "name": "קול הלשון",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "tfilon.tfilon",
+   "name": "תפילון - סידור חכם",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "org.otzaria.otzaria",
+   "name": "אוצריא",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.dirshu",
+   "name": "Dirshu Daf Hayomi B’halacha",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.tehilim.book",
+   "name": "תהילים",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "il.avimak.Tehillim",
+   "name": "תהילים אהל יוסף יצחק",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.eladcohen.halachayomit",
+   "name": "הלכה יומית - דרכי אבותינו",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.kcm.fm",
+   "name": "אמס – קול חי",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "kol_barama.co.il",
+   "name": "קול ברמה - kol barama",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.gadi.parashat",
+   "name": "פרשת השבוע",
+   "c": "תורה ויהדות"
+  },
+  {
+   "p": "com.adobe.reader",
+   "name": "Adobe Acrobat Reader לקרוא PDF",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.intsig.camscanner",
+   "name": "CamScanner -אפליקציית סורק PDF",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.gm",
+   "name": "Gmail",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.docs.editors.docs",
+   "name": "Google Docs",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.docs",
+   "name": "Google Drive",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.keep",
+   "name": "Google Keep - הערות ורשימות",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.messaging",
+   "name": "Google Messages",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.docs.editors.sheets",
+   "name": "Google Sheets",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.translate",
+   "name": "Google Translate",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.azure.authenticator",
+   "name": "Microsoft Authenticator",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.microsoft.office.outlook",
+   "name": "Microsoft Outlook",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.microsoft.teams",
+   "name": "Microsoft Teams",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.whatsapp.w4b",
+   "name": "WhatsApp Business",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.whatsapp",
+   "name": "WhatsApp Messenger",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "us.zoom.videomeetings",
+   "name": "Zoom Workplace",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.authenticator2",
+   "name": "מאמת החשבונות של Google",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.calendar",
+   "name": "‏יומן Google",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.microsoft.office.word",
+   "name": "Microsoft Word: Edit Documents",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.microsoft.office.excel",
+   "name": "Microsoft Excel: Spreadsheets",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.microsoft.office.powerpoint",
+   "name": "Microsoft PowerPoint",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.microsoft.skydrive",
+   "name": "OneDrive – אחסון בענן",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.dropbox.android",
+   "name": "Dropbox: Files & Cloud Storage",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.google.android.apps.tachyon",
+   "name": "Google Meet",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.adobe.scan.android",
+   "name": "Adobe Scan: סורק מסמכים, PDF",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.x8bit.bitwarden",
+   "name": "מנהל הסיסמאות Bitwarden",
+   "c": "עבודה ומשרד"
+  },
+  {
+   "p": "com.wolt.android",
+   "name": "וולט: משלוחי אוכל ועוד",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.superup.ramilevy",
+   "name": "רמי לוי אונליין",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.Shufersal",
+   "name": "שופרסל App",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.ewavemobile.MeyEden",
+   "name": "מי עדן",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "il.co.yochananof.mobile.twa",
+   "name": "יוחננוף - סופרשוק לכולם",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.supersmart.android",
+   "name": "אושר סמארט",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.hazihinam.shoppingapp",
+   "name": "חצי חינם",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.tenbis.tbapp",
+   "name": "תן ביס",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.sodexo.mysodexo",
+   "name": "Cibus Pluxee",
+   "c": "קניות ומשלוחים"
+  },
+  {
+   "p": "com.google.android.apps.nbu.files",
+   "name": "Files by Google",
+   "c": "כלים"
+  },
+  {
+   "p": "com.google.android.contacts",
+   "name": "אנשי קשר",
+   "c": "כלים"
+  },
+  {
+   "p": "com.google.android.dialer",
+   "name": "טלפון של Google",
+   "c": "כלים"
+  },
+  {
+   "p": "com.google.android.calculator",
+   "name": "מחשבון",
+   "c": "כלים"
+  },
+  {
+   "p": "com.google.android.deskclock",
+   "name": "שעון",
+   "c": "כלים"
+  },
+  {
+   "p": "com.google.android.inputmethod.latin",
+   "name": "‏Gboard – מקלדת Google",
+   "c": "כלים"
   }
  ]
 }

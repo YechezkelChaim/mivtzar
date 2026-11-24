@@ -65,6 +65,10 @@
   </div>
 
   <div id="home" class="hide">
+    <div class="card" id="reqcard">
+      <h2>בקשות ממתינות</h2>
+      <div id="reqs"><p>אין בקשות.</p></div>
+    </div>
     <div class="card">
       <h2>קוד המנהל שלי</h2>
       <p id="acst">טוען…</p>
@@ -72,6 +76,14 @@
       <div class="row"><input type="password" id="ac1" inputmode="numeric" maxlength="8" placeholder="קוד חדש (4–8 ספרות)" dir="ltr"><input type="password" id="ac2" inputmode="numeric" maxlength="8" placeholder="שוב את הקוד" dir="ltr"></div>
       <button id="acsave">שמירת הקוד</button>
       <div class="msg" id="acmsg"></div>
+    </div>
+    <div class="card">
+      <h2>וואטסאפ לבקשות</h2>
+      <p class="muted">כשלקוח מבקש אישור, הוא יכול לשלוח לך הודעה מוכנה בוואטסאפ למספר הזה. אפשר לשנות בכל זמן – זה מתעדכן בכל המכשירים.</p>
+      <p id="phst"></p>
+      <div class="row"><input type="text" id="phone" inputmode="tel" placeholder="מספר וואטסאפ, למשל 050-1234567" dir="ltr"></div>
+      <button id="phsave">שמירת המספר</button>
+      <div class="msg" id="phmsg"></div>
     </div>
     <div class="card">
       <h2>חיבור מכשיר חדש</h2>
@@ -208,11 +220,14 @@ onAuthStateChanged(auth, user => {
   if (!user) { show("login"); if (note) { $("lerr").textContent = note; note = ""; } return; }
   show("home");
   loadAdminPin();
+  let namesReady = false;
   unsubList = onSnapshot(query(collection(db, "devices"), where("paired", "==", true)), snap => {
     const rows = [];
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
     rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "he"));
     $("list").innerHTML = rows.length ? "" : "<p>עוד אין מכשירים מחוברים.</p>";
+    rows.forEach(r => { devNames[r.id] = r.name || r.model || "מכשיר"; });
+    if (!namesReady) { namesReady = true; watchRequests(); }
     rows.forEach(r => {
       const el = document.createElement("div");
       el.className = "dev";
@@ -237,7 +252,8 @@ function ago(t) {
 }
 
 // ----- קוד המנהל: נשמר רק כגיבוב (PBKDF2), אותו גיבוב נשלח לכל מכשיר -----
-let adminPin = null;
+let adminPin = null, adminPhone = "";
+const devNames = {};
 const b64 = u8 => btoa(String.fromCharCode(...u8));
 async function pinHash(pin, salt) {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
@@ -245,7 +261,12 @@ async function pinHash(pin, salt) {
   return b64(new Uint8Array(bits));
 }
 async function loadAdminPin() {
-  try { const d = await getDoc(doc(db, "admin", "config")); adminPin = d.exists() && d.data().pin ? d.data().pin : null; } catch (e) { adminPin = null; }
+  try {
+    const d = await getDoc(doc(db, "admin", "config"));
+    adminPin = d.exists() && d.data().pin ? d.data().pin : null;
+    adminPhone = d.exists() && d.data().phone ? d.data().phone : "";
+  } catch (e) { adminPin = null; }
+  $("phst").textContent = adminPhone ? "המספר הנוכחי: +" + adminPhone : "עוד לא נקבע מספר.";
   $("acst").textContent = adminPin ? "✓ הוגדר קוד מנהל." : "עוד לא הוגדר קוד מנהל. צריך להגדיר אותו לפני שמחברים מכשירים.";
   $("acst").style.color = adminPin ? "#1E8E3E" : "#C62828";
 }
@@ -268,6 +289,58 @@ $("acsave").onclick = async () => {
   } catch (e) { msg.textContent = "השמירה לא הצליחה: " + e.message; msg.classList.add("err"); }
 };
 
+$("phsave").onclick = async () => {
+  const msg = $("phmsg"); msg.className = "msg";
+  let d = $("phone").value.replace(/\D/g, "");
+  if (d.startsWith("0")) d = "972" + d.slice(1);
+  if (d.length < 11 || d.length > 13) { msg.textContent = "המספר לא תקין."; msg.classList.add("err"); return; }
+  msg.textContent = "שומר…";
+  try {
+    await setDoc(doc(db, "admin", "config"), { phone: d }, { merge: true });
+    const all = await getDocs(query(collection(db, "devices"), where("paired", "==", true)));
+    await Promise.all(all.docs.map(x => updateDoc(x.ref, { adminPhone: d })));
+    $("phone").value = "";
+    msg.textContent = "✓ נשמר ונשלח ל-" + all.size + " מכשירים."; msg.classList.add("ok");
+    loadAdminPin();
+  } catch (e) { msg.textContent = "השמירה לא הצליחה: " + e.message; msg.classList.add("err"); }
+};
+
+// ----- בקשות אישור מהמכשירים -----
+let unsubReq = null;
+const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play" };
+function watchRequests() {
+  if (unsubReq) unsubReq();
+  unsubReq = onSnapshot(query(collection(db, "requests"), where("status", "==", "pending")), snap => {
+    const rows = [];
+    snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+    rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    $("reqcard").style.borderColor = rows.length ? "var(--orange)" : "";
+    $("reqs").innerHTML = rows.length ? "" : "<p>אין בקשות.</p>";
+    rows.forEach(r => {
+      const el = document.createElement("div");
+      el.className = "req";
+      el.style.cssText = "border-top:1px solid #E3E8F0;padding:10px 0";
+      el.innerHTML = `<div><b></b> · <span class="muted"></span></div><div class="t"></div><div class="muted w"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        <button data-ms="3600000">אישור לשעה</button><button data-ms="86400000">ליום</button>
+        <button data-ms="-1">לתמיד</button><button class="danger" data-no="1">דחייה</button></div>`;
+      el.querySelector("b").textContent = devNames[r.deviceId] || "מכשיר";
+      el.querySelector("span").textContent = ago(r.createdAt);
+      el.querySelector(".t").textContent = (TYPE[r.type] || "") + ": " + (r.label || r.target) + (r.type === "app" && r.label !== r.target ? " (" + r.target + ")" : "");
+      el.querySelector(".w").textContent = r.reason ? "סיבה: " + r.reason : "";
+      el.querySelectorAll("button").forEach(b => b.onclick = async () => {
+        el.querySelectorAll("button").forEach(x => x.disabled = true);
+        try {
+          await updateDoc(doc(db, "requests", r.id), b.dataset.no
+            ? { status: "rejected", answeredAt: Date.now() }
+            : { status: "approved", durationMs: Number(b.dataset.ms), answeredAt: Date.now() });
+        } catch (e) { alert("לא הצליח: " + e.message); el.querySelectorAll("button").forEach(x => x.disabled = false); }
+      });
+      $("reqs").appendChild(el);
+    });
+  }, e => { $("reqs").innerHTML = "<p class='err'>לא הצלחתי לטעון בקשות: " + e.message + "</p>"; });
+}
+
 $("pair").onclick = async () => {
   const code = $("pcode").value.replace(/\D/g, ""), name = $("pname").value.trim();
   const msg = $("pmsg");
@@ -280,7 +353,7 @@ $("pair").onclick = async () => {
     if (s.empty) { msg.textContent = "לא נמצא מכשיר עם הקוד הזה. בדוק שהקוד במכשיר עדיין מוצג."; msg.classList.add("err"); return; }
     const d = s.docs[0];
     await updateDoc(d.ref, { paired: true, pairedAt: Date.now(), name: name || d.data().model || "מכשיר", customerCanManage: false,
-      settings: d.data().settings || {}, pairCode: "", adminPin });
+      settings: d.data().settings || {}, pairCode: "", adminPin, adminPhone });
     msg.textContent = "✓ המכשיר חובר"; msg.classList.add("ok");
     $("pcode").value = ""; $("pname").value = "";
   } catch (e) { msg.textContent = "החיבור לא הצליח: " + e.message; msg.classList.add("err"); }

@@ -106,7 +106,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app = initializeApp({
@@ -136,9 +136,17 @@ let unsubList = null, unsubDev = null, cur = null;
 $("gin").onclick = async () => {
   $("lerr").textContent = "";
   try { await signInWithPopup(auth, new GoogleAuthProvider()); }
-  catch (e) { $("lerr").textContent = "הכניסה לא הצליחה. נסה שוב."; }
+  catch (e) {
+    // דפדפנים שחוסמים חלון קופץ – כניסה באותו חלון
+    if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment", "auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(e.code)) {
+      $("lerr").textContent = "עובר לדף הכניסה של Google…";
+      try { await signInWithRedirect(auth, new GoogleAuthProvider()); return; } catch (e2) { e = e2; }
+    }
+    $("lerr").textContent = "הכניסה לא הצליחה (" + (e.code || e.message) + "). אפשר לנסות בדפדפן Chrome במחשב.";
+  }
 };
 $("out").onclick = () => signOut(auth);
+getRedirectResult(auth).catch(e => { $("lerr").textContent = "הכניסה לא הצליחה (" + (e.code || e.message) + ")."; });
 
 onAuthStateChanged(auth, user => {
   $("out").classList.toggle("hide", !user);

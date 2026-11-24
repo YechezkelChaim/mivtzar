@@ -154,7 +154,7 @@ $("gin").onclick = async () => {
     $("lerr").textContent = "הכניסה לא הצליחה (" + (e.code || e.message) + "). אפשר לנסות בדפדפן Chrome במחשב.";
   }
 };
-const ERR = { "auth/invalid-credential": "המייל או הסיסמה לא נכונים.", "auth/wrong-password": "הסיסמה לא נכונה.",
+const ERR = { "auth/invalid-credential": "המייל או הסיסמה לא נכונים. אם עוד לא בחרת סיסמה – לחץ \"שכחתי סיסמה\", ויגיע אליך מייל לבחירת סיסמה.", "auth/wrong-password": "הסיסמה לא נכונה.",
   "auth/user-not-found": "אין עדיין סיסמה למייל הזה. לחץ על \"יצירת סיסמה בפעם הראשונה\".", "auth/email-already-in-use": "כבר יש סיסמה למייל הזה. אפשר להיכנס, או ללחוץ \"שכחתי סיסמה\".",
   "auth/weak-password": "הסיסמה קצרה מדי – לפחות 6 תווים.", "auth/invalid-email": "המייל לא תקין.", "auth/too-many-requests": "יותר מדי ניסיונות. נסה שוב בעוד כמה דקות.",
   "auth/missing-password": "הקלד סיסמה." };
@@ -173,12 +173,18 @@ $("enew").onclick = async () => {
     await sendEmailVerification(c.user);
     note = "נשלח אליך מייל לאישור. פתח את המייל, לחץ על הקישור, ואז חזור לכאן ולחץ \"כניסה\".";
     await signOut(auth);
-  } catch (e) { $("lerr").textContent = authErr(e); }
+  } catch (e) {
+    // המייל כבר רשום (למשל אחרי כניסה עם Google) – שולחים מייל לבחירת סיסמה
+    if (e.code === "auth/email-already-in-use") {
+      try { await sendPasswordResetEmail(auth, emv()); $("lerr").textContent = "המייל הזה כבר רשום. שלחנו אליו מייל לבחירת סיסמה – פתח אותו, בחר סיסמה, וחזור לכאן להיכנס."; return; } catch (e2) { e = e2; }
+    }
+    $("lerr").textContent = authErr(e);
+  }
 };
 $("eforgot").onclick = async () => {
   $("lerr").textContent = "";
   if (!emv()) { $("lerr").textContent = "הקלד קודם את המייל."; return; }
-  try { await sendPasswordResetEmail(auth, emv()); $("lerr").textContent = "נשלח מייל לבחירת סיסמה חדשה."; }
+  try { await sendPasswordResetEmail(auth, emv()); $("lerr").textContent = "נשלח מייל לבחירת סיסמה (בדוק גם בספאם). בחר שם סיסמה וחזור לכאן להיכנס."; }
   catch (e) { $("lerr").textContent = authErr(e); }
 };
 $("out").onclick = () => signOut(auth);

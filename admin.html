@@ -325,7 +325,7 @@ function watchRequests() {
         <button data-ms="3600000">אישור לשעה</button><button data-ms="86400000">ליום</button>
         <button data-ms="-1">לתמיד</button><button class="danger" data-no="1">דחייה</button></div>`;
       el.querySelector("b").textContent = devNames[r.deviceId] || "מכשיר";
-      el.querySelector("span").textContent = ago(r.createdAt);
+      el.querySelector("span").textContent = ago(r.createdAt).replace("מחובר ", "");
       el.querySelector(".t").textContent = (TYPE[r.type] || "") + ": " + (r.label || r.target) + (r.type === "app" && r.label !== r.target ? " (" + r.target + ")" : "");
       el.querySelector(".w").textContent = r.reason ? "סיבה: " + r.reason : "";
       el.querySelectorAll("button").forEach(b => b.onclick = async () => {

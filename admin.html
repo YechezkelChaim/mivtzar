@@ -52,8 +52,8 @@
     <h2>כניסה למנהל</h2>
     <p>כניסה עם המייל של מנהל מבצר.</p>
     <div class="row" style="flex-direction:column;gap:8px">
-      <input type="email" id="em" placeholder="מייל" autocomplete="username" dir="ltr">
-      <input type="password" id="pw" placeholder="סיסמה" autocomplete="current-password" dir="ltr">
+      <input type="email" id="em" placeholder="מייל" autocomplete="username" dir="ltr" aria-label="מייל">
+      <input type="password" id="pw" placeholder="סיסמה" autocomplete="current-password" dir="ltr" aria-label="סיסמה">
     </div>
     <button id="ein">כניסה</button>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
@@ -73,7 +73,7 @@
       <h2>קוד המנהל שלי</h2>
       <p id="acst">טוען…</p>
       <p class="muted">עם הקוד הזה נכנסים בכל מכשיר להגדרות המלאות ומאשרים אפליקציות ואתרים. הלקוח נכנס עם הקוד האישי שלו ורואה רק את מה שמותר לו. הקוד נשמר מוצפן – רשום אותו אצלך.</p>
-      <div class="row"><input type="password" id="ac1" inputmode="numeric" maxlength="8" placeholder="קוד חדש (4–8 ספרות)" dir="ltr"><input type="password" id="ac2" inputmode="numeric" maxlength="8" placeholder="שוב את הקוד" dir="ltr"></div>
+      <div class="row"><input type="password" id="ac1" inputmode="numeric" maxlength="8" placeholder="קוד חדש (4–8 ספרות)" dir="ltr" aria-label="קוד חדש (4–8 ספרות)"><input type="password" id="ac2" inputmode="numeric" maxlength="8" placeholder="שוב את הקוד" dir="ltr" aria-label="שוב את הקוד"></div>
       <button id="acsave">שמירת הקוד</button>
       <div class="msg" id="acmsg"></div>
     </div>
@@ -81,14 +81,14 @@
       <h2>וואטסאפ לבקשות</h2>
       <p class="muted">כשלקוח מבקש אישור, הוא יכול לשלוח לך הודעה מוכנה בוואטסאפ למספר הזה. אפשר לשנות בכל זמן – זה מתעדכן בכל המכשירים.</p>
       <p id="phst"></p>
-      <div class="row"><input type="text" id="phone" inputmode="tel" placeholder="מספר וואטסאפ, למשל 050-1234567" dir="ltr"></div>
+      <div class="row"><input type="text" id="phone" inputmode="tel" placeholder="מספר וואטסאפ, למשל 050-1234567" dir="ltr" aria-label="מספר וואטסאפ, למשל 050-1234567"></div>
       <button id="phsave">שמירת המספר</button>
       <div class="msg" id="phmsg"></div>
     </div>
     <div class="card">
       <h2>חיבור מכשיר חדש</h2>
       <p>במכשיר: מבצר ← לוח הבקרה ← "ניהול מרחוק". שם מופיע קוד של 6 ספרות.</p>
-      <div class="row"><input type="text" id="pcode" inputmode="numeric" maxlength="7" placeholder="קוד החיבור"><input type="text" id="pname" placeholder="שם (למשל: הטלפון של משה)"></div>
+      <div class="row"><input type="text" id="pcode" inputmode="numeric" maxlength="7" placeholder="קוד החיבור" aria-label="קוד החיבור"><input type="text" id="pname" placeholder="שם (למשל: הטלפון של משה)" aria-label="שם (למשל: הטלפון של משה)"></div>
       <button id="pair">חיבור</button>
       <div class="msg" id="pmsg"></div>
     </div>
@@ -106,7 +106,7 @@
     </div>
     <div class="card">
       <div class="tog"><div><b>הלקוח יכול לנהל</b><small>כבוי – במכשיר אי אפשר לשנות כלום (למשל מכשיר של ילד). דלוק – הלקוח יכול לשנות את מה שמסומן "גם הלקוח".</small></div>
-        <label class="sw"><input type="checkbox" data-top="customerCanManage"><span></span></label></div>
+        <label class="sw"><input type="checkbox" data-top="customerCanManage" aria-label="הלקוח יכול לנהל"><span></span></label></div>
     </div>
     <div class="card">
       <h2>הגדרות</h2>
@@ -115,7 +115,7 @@
     <div class="card">
       <h2>אתרים חסומים ידנית <span class="badge">גם הלקוח</span></h2>
       <p>כתובת בכל שורה, למשל example.com</p>
-      <textarea id="mblock"></textarea>
+      <textarea id="mblock" aria-label="אתרים חסומים ידנית, כתובת בכל שורה"></textarea>
       <button id="savemb">שמירה</button>
     </div>
     <div class="card">
@@ -220,6 +220,7 @@ onAuthStateChanged(auth, user => {
   if (!user) { show("login"); if (note) { $("lerr").textContent = note; note = ""; } return; }
   show("home");
   loadAdminPin();
+  cleanup();
   let namesReady = false;
   unsubList = onSnapshot(query(collection(db, "devices"), where("paired", "==", true)), snap => {
     const rows = [];
@@ -306,6 +307,16 @@ $("phsave").onclick = async () => {
 };
 
 // ----- בקשות אישור מהמכשירים -----
+// ניקוי לפי מדיניות הפרטיות: טלפונים שלא חוברו ובקשות – אחרי 90 יום
+async function cleanup() {
+  const old = Date.now() - 90 * 86400000;
+  try {
+    const un = await getDocs(query(collection(db, "devices"), where("paired", "==", false)));
+    await Promise.all(un.docs.filter(d => (d.data().lastSeen || 0) < old).map(d => deleteDoc(d.ref)));
+    const rq = await getDocs(query(collection(db, "requests"), where("createdAt", "<", old)));
+    await Promise.all(rq.docs.map(d => deleteDoc(d.ref)));
+  } catch (e) { console.warn("cleanup", e); }
+}
 let unsubReq = null;
 const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play" };
 function watchRequests() {
@@ -385,6 +396,7 @@ function render() {
     row.querySelector("b").textContent = o.t;
     row.querySelector("small").textContent = o.d;
     const cb = row.querySelector("input");
+    cb.setAttribute("aria-label", o.t);
     cb.checked = v;
     cb.onchange = () => save({ ["settings." + o.k]: cb.checked });
     box.appendChild(row);
@@ -414,7 +426,10 @@ $("savemb").onclick = () => save({ "settings.manualBlocked": $("mblock").value.s
 $("saveapps").onclick = () => save({ "settings.blockedApps": [...document.querySelectorAll("#apps input:checked")].map(x => x.dataset.p) });
 $("del").onclick = async () => {
   if (!confirm("להסיר את המכשיר מהרשימה?")) return;
-  await deleteDoc(doc(db, "devices", cur.id));
+  const id = cur.id;
+  const rq = await getDocs(query(collection(db, "requests"), where("deviceId", "==", id)));
+  await Promise.all(rq.docs.map(d => deleteDoc(d.ref)));
+  await deleteDoc(doc(db, "devices", id));
 };
 </script>
 </body>

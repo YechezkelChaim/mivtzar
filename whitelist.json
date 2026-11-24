@@ -1,5 +1,5 @@
 {
- "version": 5,
+ "version": 6,
  "domains": [
   {
    "d": "gov.il",
@@ -1327,11 +1327,6 @@
   {
    "p": "com.gettaxi.android",
    "name": "Gett הזמנת מוניות ומשלוחים",
-   "c": "תחבורה וחניה"
-  },
-  {
-   "p": "com.google.android.apps.maps",
-   "name": "Google מפות",
    "c": "תחבורה וחניה"
   },
   {

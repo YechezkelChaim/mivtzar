@@ -66,8 +66,16 @@
 
   <div id="home" class="hide">
     <div class="card">
+      <h2>קוד המנהל שלי</h2>
+      <p id="acst">טוען…</p>
+      <p class="muted">עם הקוד הזה נכנסים בכל מכשיר להגדרות המלאות ומאשרים אפליקציות ואתרים. הלקוח נכנס עם הקוד האישי שלו ורואה רק את מה שמותר לו. הקוד נשמר מוצפן – רשום אותו אצלך.</p>
+      <div class="row"><input type="password" id="ac1" inputmode="numeric" maxlength="8" placeholder="קוד חדש (4–8 ספרות)" dir="ltr"><input type="password" id="ac2" inputmode="numeric" maxlength="8" placeholder="שוב את הקוד" dir="ltr"></div>
+      <button id="acsave">שמירת הקוד</button>
+      <div class="msg" id="acmsg"></div>
+    </div>
+    <div class="card">
       <h2>חיבור מכשיר חדש</h2>
-      <p>במכשיר: מבצר ← לוח הבקרה ← "חיבור לניהול". יופיע קוד של 6 ספרות.</p>
+      <p>במכשיר: מבצר ← לוח הבקרה ← "ניהול מרחוק". שם מופיע קוד של 6 ספרות.</p>
       <div class="row"><input type="text" id="pcode" inputmode="numeric" maxlength="7" placeholder="קוד החיבור"><input type="text" id="pname" placeholder="שם (למשל: הטלפון של משה)"></div>
       <button id="pair">חיבור</button>
       <div class="msg" id="pmsg"></div>
@@ -116,7 +124,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAYt5SUbPoRNlmWoOpsYRQ0J_01WodjcmU",
@@ -199,6 +207,7 @@ onAuthStateChanged(auth, user => {
   }
   if (!user) { show("login"); if (note) { $("lerr").textContent = note; note = ""; } return; }
   show("home");
+  loadAdminPin();
   unsubList = onSnapshot(query(collection(db, "devices"), where("paired", "==", true)), snap => {
     const rows = [];
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
@@ -227,18 +236,51 @@ function ago(t) {
   return `לפני ${Math.round(h / 24)} ימים`;
 }
 
+// ----- קוד המנהל: נשמר רק כגיבוב (PBKDF2), אותו גיבוב נשלח לכל מכשיר -----
+let adminPin = null;
+const b64 = u8 => btoa(String.fromCharCode(...u8));
+async function pinHash(pin, salt) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-1", salt, iterations: 20000 }, key, 256);
+  return b64(new Uint8Array(bits));
+}
+async function loadAdminPin() {
+  try { const d = await getDoc(doc(db, "admin", "config")); adminPin = d.exists() && d.data().pin ? d.data().pin : null; } catch (e) { adminPin = null; }
+  $("acst").textContent = adminPin ? "✓ הוגדר קוד מנהל." : "עוד לא הוגדר קוד מנהל. צריך להגדיר אותו לפני שמחברים מכשירים.";
+  $("acst").style.color = adminPin ? "#1E8E3E" : "#C62828";
+}
+$("acsave").onclick = async () => {
+  const a = $("ac1").value, b = $("ac2").value, msg = $("acmsg");
+  msg.className = "msg";
+  if (!/^\d{4,8}$/.test(a)) { msg.textContent = "הקוד צריך להיות 4 עד 8 ספרות."; msg.classList.add("err"); return; }
+  if (a !== b) { msg.textContent = "הקודים לא תואמים."; msg.classList.add("err"); return; }
+  msg.textContent = "שומר…";
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const pin = { salt: b64(salt), hash: await pinHash(a, salt) };
+    await setDoc(doc(db, "admin", "config"), { pin, at: Date.now() }, { merge: true });
+    const all = await getDocs(query(collection(db, "devices"), where("paired", "==", true)));
+    await Promise.all(all.docs.map(d => updateDoc(d.ref, { adminPin: pin })));
+    adminPin = pin;
+    $("ac1").value = ""; $("ac2").value = "";
+    msg.textContent = "✓ הקוד נשמר ונשלח ל-" + all.size + " מכשירים. הם יתעדכנו תוך כמה דקות."; msg.classList.add("ok");
+    loadAdminPin();
+  } catch (e) { msg.textContent = "השמירה לא הצליחה: " + e.message; msg.classList.add("err"); }
+};
+
 $("pair").onclick = async () => {
   const code = $("pcode").value.replace(/\D/g, ""), name = $("pname").value.trim();
   const msg = $("pmsg");
   msg.className = "msg";
   if (code.length !== 6) { msg.textContent = "הקוד הוא 6 ספרות"; msg.classList.add("err"); return; }
+  if (!adminPin) { msg.textContent = "קודם צריך להגדיר את קוד המנהל (למעלה)."; msg.classList.add("err"); return; }
   msg.textContent = "מחפש…";
   try {
     const s = await getDocs(query(collection(db, "devices"), where("pairCode", "==", code), where("paired", "==", false)));
     if (s.empty) { msg.textContent = "לא נמצא מכשיר עם הקוד הזה. בדוק שהקוד במכשיר עדיין מוצג."; msg.classList.add("err"); return; }
     const d = s.docs[0];
     await updateDoc(d.ref, { paired: true, pairedAt: Date.now(), name: name || d.data().model || "מכשיר", customerCanManage: false,
-      settings: d.data().settings || {}, pairCode: "" });
+      settings: d.data().settings || {}, pairCode: "", adminPin });
     msg.textContent = "✓ המכשיר חובר"; msg.classList.add("ok");
     $("pcode").value = ""; $("pname").value = "";
   } catch (e) { msg.textContent = "החיבור לא הצליח: " + e.message; msg.classList.add("err"); }

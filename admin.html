@@ -126,6 +126,11 @@
     </div>
     <div class="msg" id="dmsg"></div>
     <div class="card">
+      <h2>ביטול אישורים</h2>
+      <p>מבטל במכשיר את כל האישורים שניתנו לאפליקציות ולאתרים (גם "לתמיד"). המכשיר מתעדכן תוך כרבע שעה לכל היותר, או מיד כשהלקוח פותח את מבצר.</p>
+      <button class="danger" id="revoke">ביטול כל האישורים במכשיר</button>
+    </div>
+    <div class="card">
       <h2>שחרור המכשיר</h2>
       <p id="relst">למשל כשהמנוי הסתיים: הסינון וחסימת האפליקציות נכבים, ההגנה מפני הסרה מתבטלת, והלקוח יכול להסיר את מבצר. המכשיר מתעדכן כשהוא מחובר לאינטרנט, תוך כרבע שעה לכל היותר.</p>
       <button class="danger" id="rel">שחרור המכשיר</button>
@@ -343,7 +348,9 @@ function watchRequests() {
       el.querySelector("b").textContent = devNames[r.deviceId] || "מכשיר";
       el.querySelector("span").textContent = ago(r.createdAt).replace("מחובר ", "");
       el.querySelector(".t").textContent = (TYPE[r.type] || "") + ": " + (r.label || r.target) + (r.type === "app" && r.label !== r.target ? " (" + r.target + ")" : "");
-      el.querySelector(".w").textContent = r.reason ? "סיבה: " + r.reason : "";
+      const BROWSERS = ["com.android.chrome", "org.mozilla.firefox", "com.sec.android.app.sbrowser", "com.microsoft.emmx", "com.opera.browser", "com.opera.mini.native", "com.brave.browser", "com.duckduckgo.mobile.android", "com.UCMobile.intl", "com.mi.globalbrowser", "com.android.browser"];
+      el.querySelector(".w").textContent = (r.reason ? "סיבה: " + r.reason : "") +
+        (r.type === "app" && BROWSERS.includes(r.target) ? (r.reason ? " · " : "") + "⚠️ זה דפדפן – אישור יפתח את כל האינטרנט בלי סינון. עדיף לדחות ולבקש מהלקוח לשלוח את האתר עצמו מדפדפן מבצר." : "");
       el.querySelectorAll("button").forEach(b => b.onclick = async () => {
         el.querySelectorAll("button").forEach(x => x.disabled = true);
         try {
@@ -434,6 +441,10 @@ async function save(fields) {
 document.querySelector('[data-top="customerCanManage"]').onchange = e => save({ customerCanManage: e.target.checked });
 $("savemb").onclick = () => save({ "settings.manualBlocked": $("mblock").value.split(/\s+/).map(x => x.trim().toLowerCase()).filter(Boolean) });
 $("saveapps").onclick = () => save({ "settings.blockedApps": [...document.querySelectorAll("#apps input:checked")].map(x => x.dataset.p) });
+$("revoke").onclick = async () => {
+  if (!confirm("לבטל את כל האישורים במכשיר \"" + (cur.name || "המכשיר") + "\"? אפליקציות ואתרים שאושרו ייחסמו שוב.")) return;
+  await save({ revokeAt: Date.now() });
+};
 $("rel").onclick = async () => {
   const on = !cur.released;
   if (!confirm(on ? "לשחרר את \"" + (cur.name || "המכשיר") + "\"? ההגנה תיכבה והלקוח יוכל להסיר את מבצר." : "להחזיר את \"" + (cur.name || "המכשיר") + "\" לשירות?")) return;

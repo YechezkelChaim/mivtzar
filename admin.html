@@ -93,6 +93,14 @@
       <div class="msg" id="pmsg"></div>
     </div>
     <div class="card">
+      <h2>קודי מתנה למבצר פלוס</h2>
+      <p class="muted">קוד שנותנים ללקוח (למשל לנסיינים). הלקוח מקיש אותו במבצר ← "הצטרפות למבצר פלוס" ← "יש לי קוד", ומקבל את מבצר פלוס כמו במנוי. כל קוד – לטלפון אחד. "ביטול" סוגר את המנוי של מי שהשתמש בקוד.</p>
+      <div class="row"><input type="text" id="pnote" placeholder="למי הקוד (לא חובה)" aria-label="למי הקוד (לא חובה)"></div>
+      <button id="pnew">יצירת קוד חדש</button>
+      <div class="msg" id="pmsg2"></div>
+      <div id="promos"></div>
+    </div>
+    <div class="card">
       <h2>המכשירים שלי</h2>
       <div id="list"><p>טוען…</p></div>
     </div>
@@ -103,6 +111,19 @@
     <div class="card">
       <h2 id="dname"></h2>
       <div class="muted" id="dinfo"></div>
+    </div>
+    <div class="card">
+      <h2>מבצר פלוס</h2>
+      <p id="plusst"></p>
+      <p class="muted">מנוי בתשלום יופעל וייעצר לבד, לפי התשלום (כשתחובר מערכת התשלום). כאן – רק מתנה, למי שאתה רוצה.</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button data-plus="-1">מבצר פלוס במתנה</button><button class="danger" data-plus="0">ביטול המתנה</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>הסרת מבצר</h2>
+      <p id="remst">אישור להסרה: ל-30 דקות הלקוח יכול להקיש 5 פעמים על הסמל במבצר וללחוץ "הסרת מבצר". אחרי 30 דקות ההגנה חוזרת להיות נעולה.</p>
+      <button class="danger" id="remok">אישור הסרה ל-30 דקות</button>
     </div>
     <div class="card">
       <div class="tog"><div><b>הלקוח יכול לנהל</b><small>כבוי – במכשיר אי אפשר לשנות כלום (למשל מכשיר של ילד). דלוק – הלקוח יכול לשנות את מה שמסומן "גם הלקוח".</small></div>
@@ -239,20 +260,74 @@ onAuthStateChanged(auth, user => {
     rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "he"));
     $("list").innerHTML = rows.length ? "" : "<p>עוד אין מכשירים מחוברים.</p>";
     rows.forEach(r => { devNames[r.id] = r.name || r.model || "מכשיר"; });
-    if (!namesReady) { namesReady = true; watchRequests(); }
+    if (!namesReady) { namesReady = true; watchRequests(); watchPromos(); }
     rows.forEach(r => {
       const el = document.createElement("div");
       el.className = "dev";
       const on = r.lastSeen && (Date.now() - r.lastSeen < 2 * 86400000);
       el.innerHTML = `<div><span class="dot" style="background:${on ? "var(--green)" : "#C9D2E0"}"></span><b></b><div class="muted" style="margin:2px 0 0"></div></div><span>›</span>`;
       el.querySelector("b").textContent = r.name || "מכשיר";
-      el.querySelector(".muted").textContent = `${r.model || ""} · גרסה ${r.version || "?"} · ${ago(r.lastSeen)}${r.customerCanManage ? " · הלקוח מנהל" : ""}${r.released ? " · משוחרר" : ""}`;
+      el.querySelector(".muted").textContent = `${r.model || ""} · גרסה ${r.version || "?"} · ${ago(r.lastSeen)}${r.customerCanManage ? " · הלקוח מנהל" : ""}${r.released ? " · משוחרר" : ""} · ${planLabel(r)}`;
       el.onclick = () => openDevice(r.id);
       $("list").appendChild(el);
     });
   }, e => { $("list").innerHTML = '<p class="err">אין הרשאה. רק חשבון המנהל יכול להיכנס.</p>'; });
 });
 
+// מבצר פלוס: plusUntil = -1 ללא הגבלה, 0 = בסיס, אחרת תאריך סיום. מכשיר ישן בלי השדה = פלוס ללא הגבלה.
+function plusActive(r) { const u = r.plusUntil; return u === undefined || u === -1 || u > Date.now() || !!r.promoCode; }
+function planLabel(r) {
+  const u = r.plusUntil;
+  if (u === undefined || u === -1) return "פלוס";
+  if (u > Date.now()) return "פלוס עד " + new Date(u).toLocaleDateString("he-IL");
+  if (r.promoCode) return "פלוס (קוד " + r.promoCode + ")";
+  return "בסיס";
+}
+// ----- קודי מתנה -----
+const PROMO_ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function newPromoCode() {
+  const a = new Uint8Array(8); crypto.getRandomValues(a);
+  return [...a].map(x => PROMO_ABC[x % PROMO_ABC.length]).join("");
+}
+let unsubPromo = null;
+function watchPromos() {
+  if (unsubPromo) unsubPromo();
+  unsubPromo = onSnapshot(collection(db, "promo"), snap => {
+    const rows = [];
+    snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+    rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    $("promos").innerHTML = "";
+    rows.forEach(r => {
+      const el = document.createElement("div");
+      el.style.cssText = "border-top:1px solid #E3E8F0;padding:8px 0;display:flex;justify-content:space-between;align-items:center;gap:8px";
+      el.innerHTML = '<div><b dir="ltr" style="letter-spacing:2px"></b> <span class="muted"></span></div>';
+      el.querySelector("b").textContent = r.id;
+      el.querySelector("span").textContent = (r.note ? r.note + " · " : "")
+        + (r.revoked ? "בוטל" : r.usedBy ? "בשימוש: " + (devNames[r.usedBy] || "מכשיר שעוד לא חובר") : "פנוי");
+      if (!r.revoked) {
+        const b = document.createElement("button");
+        b.className = "danger"; b.textContent = "ביטול";
+        b.onclick = async () => {
+          if (!confirm("לבטל את הקוד " + r.id + "?" + (r.usedBy ? " המנוי של מי שהשתמש בו ייסגר." : ""))) return;
+          try {
+            await updateDoc(doc(db, "promo", r.id), { revoked: true, revokedAt: Date.now() });
+            if (r.usedBy) await updateDoc(doc(db, "devices", r.usedBy), { promoCode: "" }).catch(() => {});
+          } catch (e) { alert("לא הצליח: " + e.message); }
+        };
+        el.appendChild(b);
+      }
+      $("promos").appendChild(el);
+    });
+  }, e => { $("promos").innerHTML = '<p class="err">לא הצלחתי לטעון קודים: ' + e.message + "</p>"; });
+}
+$("pnew").onclick = async () => {
+  const m = $("pmsg2"); m.className = "msg";
+  const code = newPromoCode();
+  try {
+    await setDoc(doc(db, "promo", code), { createdAt: Date.now(), note: $("pnote").value.trim(), usedBy: null, revoked: false });
+    m.textContent = "✓ קוד חדש: " + code + " – שלח אותו ללקוח"; m.classList.add("ok"); $("pnote").value = "";
+  } catch (e) { m.textContent = "לא הצליח: " + e.message; m.classList.add("err"); }
+};
 function ago(t) {
   if (!t) return "לא התחבר עדיין";
   const m = Math.round((Date.now() - t) / 60000);
@@ -329,7 +404,7 @@ async function cleanup() {
   } catch (e) { console.warn("cleanup", e); }
 }
 let unsubReq = null;
-const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play" };
+const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play", remove: "הסרת מבצר" };
 function watchRequests() {
   if (unsubReq) unsubReq();
   unsubReq = onSnapshot(query(collection(db, "requests"), where("status", "==", "pending")), snap => {
@@ -351,7 +426,7 @@ function watchRequests() {
       el.querySelector(".t").textContent = (TYPE[r.type] || "") + ": " + (r.label || r.target) + (r.type === "app" && r.label !== r.target ? " (" + r.target + ")" : "");
       const BROWSERS = ["com.android.chrome", "org.mozilla.firefox", "com.sec.android.app.sbrowser", "com.microsoft.emmx", "com.opera.browser", "com.opera.mini.native", "com.brave.browser", "com.duckduckgo.mobile.android", "com.UCMobile.intl", "com.mi.globalbrowser", "com.android.browser"];
       // "אף פעם": לא מאשרים גם אם הגיעה בקשה (גם הטלפון עצמו לא יפתח אותם)
-      const NEVER_APPS = ["com.google.android.youtube","com.google.android.apps.youtube.music","com.google.android.apps.youtube.kids","com.google.android.youtube.tv","com.google.android.videos","com.google.android.apps.youtube.creator","com.netflix.mediaclient","com.spotify.music","com.soundcloud.android","deezer.android.app","com.samsung.android.tvplus","com.zhiliaoapp.musically","com.ss.android.ugc.trill","com.twitch.android.app","com.facebook.katana","com.facebook.lite","com.instagram.android","com.instagram.barcelona","com.snapchat.android","com.twitter.android","org.telegram.messenger","org.telegram.plus","com.pinterest","com.linkedin.android","com.reddit.frontpage","com.discord","com.tumblr","com.google.android.apps.maps","com.google.android.apps.magazines","com.google.ar.lens","com.microsoft.bing","com.google.android.googlequicksearchbox","com.google.android.apps.searchlite","com.sec.android.app.samsungapps","com.huawei.appmarket","com.xiaomi.mipicks","com.xiaomi.market","com.heytap.market","com.oppo.market","com.vivo.appstore","com.amazon.venezia","com.aurora.store","org.fdroid.fdroid","com.apkpure.aegon","com.uptodown","com.samsung.knox.securefolder","com.samsung.android.game.gamehome"];
+      const NEVER_APPS = ["com.google.android.youtube","com.google.android.apps.youtube.music","com.google.android.apps.youtube.kids","com.google.android.youtube.tv","com.google.android.videos","com.google.android.apps.youtube.creator","com.netflix.mediaclient","com.spotify.music","com.soundcloud.android","deezer.android.app","com.samsung.android.tvplus","com.zhiliaoapp.musically","com.ss.android.ugc.trill","com.twitch.android.app","com.facebook.katana","com.facebook.lite","com.instagram.android","com.instagram.barcelona","com.snapchat.android","com.twitter.android","org.telegram.messenger","org.telegram.plus","com.pinterest","com.linkedin.android","com.reddit.frontpage","com.discord","com.tumblr","com.google.android.apps.maps","com.google.android.apps.magazines","com.google.ar.lens","com.microsoft.bing","com.google.android.googlequicksearchbox","com.google.android.apps.searchlite","com.sec.android.app.samsungapps","com.huawei.appmarket","com.xiaomi.mipicks","com.xiaomi.market","com.heytap.market","com.oppo.market","com.vivo.appstore","com.amazon.venezia","com.aurora.store","org.fdroid.fdroid","com.apkpure.aegon","com.uptodown","com.samsung.knox.securefolder","com.samsung.android.game.gamehome","com.alibaba.aliexpresshd","com.einnovation.temu","com.zzkko","com.contextlogic.wish","com.amazon.mShop.android.shopping","com.ebay.mobile","com.joom","com.asos.app","com.inditex.zara","com.hm.goe"];
       const NEVER_SITES = ["youtube.com","youtu.be","youtube-nocookie.com","youtubekids.com","googlevideo.com","tiktok.com","twitch.tv","kick.com","duckduckgo.com","yandex.com","yandex.ru","baidu.com"];
       const NEVER_EXACT = ["google.com","www.google.com","google.co.il","www.google.co.il","images.google.com","news.google.com","bing.com","www.bing.com"];
       const host = String(r.target || "").toLowerCase();
@@ -359,11 +434,25 @@ function watchRequests() {
         || (r.type === "site" && (NEVER_EXACT.includes(host) || NEVER_SITES.some(d => host === d || host.endsWith("." + d))));
       el.querySelector(".w").textContent = (r.reason ? "סיבה: " + r.reason : "") +
         (r.type === "app" && BROWSERS.includes(r.target) ? (r.reason ? " · " : "") + "⚠️ זה דפדפן – אישור יפתח את כל האינטרנט בלי סינון. עדיף לדחות ולבקש מהלקוח לשלוח את האתר עצמו מדפדפן מבצר." : "");
+      if (r.type === "remove") {
+        el.querySelectorAll("button[data-ms]").forEach(b => b.remove());
+        const ok = document.createElement("button");
+        ok.textContent = "אישור הסרה ל-30 דקות";
+        ok.className = "danger";
+        ok.onclick = async () => {
+          if (!confirm("לאשר הסרה של מבצר במכשיר \"" + (devNames[r.deviceId] || "המכשיר") + "\"?")) return;
+          try {
+            await updateDoc(doc(db, "devices", r.deviceId), { removeUntil: Date.now() + 30 * 60000 });
+            await updateDoc(doc(db, "requests", r.id), { status: "approved", durationMs: 30 * 60000, answeredAt: Date.now() });
+          } catch (e) { alert("לא הצליח: " + e.message); }
+        };
+        el.querySelector("button[data-no]").before(ok);
+      }
       if (never) {
         el.querySelectorAll("button[data-ms]").forEach(b => b.remove());
         el.querySelector(".w").textContent = (r.reason ? "סיבה: " + r.reason + " · " : "") + "⛔ חסום תמיד במבצר – אי אפשר לאשר. אפשר רק לדחות.";
       }
-      el.querySelectorAll("button").forEach(b => b.onclick = async () => {
+      el.querySelectorAll("button[data-ms],button[data-no]").forEach(b => b.onclick = async () => {
         el.querySelectorAll("button").forEach(x => x.disabled = true);
         try {
           await updateDoc(doc(db, "requests", r.id), b.dataset.no
@@ -388,7 +477,7 @@ $("pair").onclick = async () => {
     if (s.empty) { msg.textContent = "לא נמצא מכשיר עם הקוד הזה. בדוק שהקוד במכשיר עדיין מוצג."; msg.classList.add("err"); return; }
     const d = s.docs[0];
     await updateDoc(d.ref, { paired: true, pairedAt: Date.now(), name: name || d.data().model || "מכשיר", customerCanManage: false,
-      settings: d.data().settings || {}, pairCode: "", adminPin, adminPhone });
+      settings: d.data().settings || {}, pairCode: "", adminPin, adminPhone, plusUntil: -1 }); // בינתיים (עד Google Play) – כל מכשיר חדש מקבל מבצר פלוס בחינם
     msg.textContent = "✓ המכשיר חובר"; msg.classList.add("ok");
     $("pcode").value = ""; $("pname").value = "";
   } catch (e) { msg.textContent = "החיבור לא הצליח: " + e.message; msg.classList.add("err"); }
@@ -410,6 +499,13 @@ function render() {
   $("dname").textContent = cur.name || "מכשיר";
   $("dinfo").textContent = `${cur.model || ""} · גרסת מבצר ${cur.version || "?"} · ${ago(cur.lastSeen)}`;
   document.querySelector('[data-top="customerCanManage"]').checked = !!cur.customerCanManage;
+  $("plusst").textContent = plusActive(cur)
+    ? "✓ " + planLabel(cur) + ". חיפוש בגוגל, הגנה בוואטסאפ, בקשות אישור ובחירת מצב תמונות פתוחים."
+    : "חבילה בסיסית: סינון אתרים, חסימת אפליקציות וחנות מבצר. חיפוש בגוגל, וואטסאפ ובקשות – נעולים.";
+  const ru = cur.removeUntil || 0;
+  $("remst").textContent = ru > Date.now()
+    ? "✓ ההסרה מאושרת עד " + new Date(ru).toLocaleTimeString("he-IL", {hour: "2-digit", minute: "2-digit"}) + ". הלקוח מקיש 5 פעמים על הסמל במבצר ולוחץ \"הסרת מבצר\"."
+    : "אישור להסרה: ל-30 דקות הלקוח יכול להקיש 5 פעמים על הסמל במבצר וללחוץ \"הסרת מבצר\". אחרי 30 דקות ההגנה חוזרת להיות נעולה.";
   $("rel").textContent = cur.released ? "החזרה לשירות (הפעלה מחדש)" : "שחרור המכשיר";
   $("rel").className = cur.released ? "" : "danger";
   $("relst").textContent = cur.released
@@ -453,6 +549,19 @@ async function save(fields) {
 document.querySelector('[data-top="customerCanManage"]').onchange = e => save({ customerCanManage: e.target.checked });
 $("savemb").onclick = () => save({ "settings.manualBlocked": $("mblock").value.split(/\s+/).map(x => x.trim().toLowerCase()).filter(Boolean) });
 $("saveapps").onclick = () => save({ "settings.blockedApps": [...document.querySelectorAll("#apps input:checked")].map(x => x.dataset.p) });
+document.querySelectorAll("[data-plus]").forEach(b => b.onclick = async () => {
+  const on = b.dataset.plus === "-1";
+  if (!on && !confirm("לבטל את המתנה של מבצר פלוס ב\"" + (cur.name || "המכשיר") + "\"? חיפוש בגוגל, וואטסאפ ובקשות ייסגרו.")) return;
+  if (on) await save({ plusUntil: -1 });
+  else {
+    if (cur.promoCode) await updateDoc(doc(db, "promo", cur.promoCode), { revoked: true, revokedAt: Date.now() }).catch(() => {});
+    await save({ plusUntil: 0, promoCode: "" });
+  }
+});
+$("remok").onclick = async () => {
+  if (!confirm("לאשר ל\"" + (cur.name || "המכשיר") + "\" להסיר את מבצר בחצי השעה הקרובה?")) return;
+  await save({ removeUntil: Date.now() + 30 * 60000 });
+};
 $("revoke").onclick = async () => {
   if (!confirm("לבטל את כל האישורים במכשיר \"" + (cur.name || "המכשיר") + "\"? אפליקציות ואתרים שאושרו ייחסמו שוב.")) return;
   await save({ revokeAt: Date.now() });

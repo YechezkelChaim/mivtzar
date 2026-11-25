@@ -94,7 +94,7 @@
     <div id="tilesView">
       <div class="hello"><h2>שלום 👋</h2><p class="muted">מה עושים היום?</p></div>
       <div id="notifBox" class="card hide" style="display:flex;align-items:center;gap:12px;justify-content:space-between">
-        <div><b>התראה על כל בקשה חדשה</b><div class="muted" style="margin:2px 0 0">צליל והודעה בטלפון או במחשב, כשהאתר פתוח (גם ברקע).</div></div>
+        <div><b>התראה על כל בקשה חדשה</b><div class="muted" id="notifTxt" style="margin:2px 0 0">צליל והודעה בטלפון או במחשב, כשהאתר פתוח (גם ברקע).</div></div>
         <button id="notifOn" style="width:auto;margin:0;flex:none">הפעלה</button>
       </div>
       <div class="tiles">
@@ -477,8 +477,13 @@ function alertNew(r) {
 }
 function updateNotifBox() {
   const ok = !("Notification" in window) || Notification.permission === "granted";
+  const denied = !ok && Notification.permission === "denied";
   $("notifBox").classList.toggle("hide", ok);
   $("notifBox").style.display = ok ? "none" : "flex";
+  $("notifOn").style.display = denied ? "none" : "";
+  $("notifTxt").textContent = denied
+    ? "ההתראות חסומות בדפדפן הזה. כדי לקבל אותן: לחיצה על הסמל שליד כתובת האתר ← הרשאות ← התראות ← לאפשר. הצליל עובד גם בלי זה."
+    : "צליל והודעה בטלפון או במחשב, כשהאתר פתוח (גם ברקע).";
 }
 $("notifOn").onclick = async () => {
   try { await Notification.requestPermission(); } catch (e) {}

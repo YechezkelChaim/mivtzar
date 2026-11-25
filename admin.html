@@ -126,8 +126,13 @@
     </div>
     <div class="msg" id="dmsg"></div>
     <div class="card">
+      <h2>שחרור המכשיר</h2>
+      <p id="relst">למשל כשהמנוי הסתיים: הסינון וחסימת האפליקציות נכבים, ההגנה מפני הסרה מתבטלת, והלקוח יכול להסיר את מבצר. המכשיר מתעדכן כשהוא מחובר לאינטרנט, תוך כרבע שעה לכל היותר.</p>
+      <button class="danger" id="rel">שחרור המכשיר</button>
+    </div>
+    <div class="card">
       <h2>הסרת המכשיר מהניהול</h2>
-      <p>המכשיר ימשיך לעבוד עם ההגדרות האחרונות שלו, אבל לא יופיע כאן.</p>
+      <p>המכשיר ימשיך לעבוד עם ההגדרות האחרונות שלו, אבל לא יופיע כאן. כדי לכבות לו את ההגנה – קודם "שחרור המכשיר".</p>
       <button class="danger" id="del">הסרה מהרשימה</button>
     </div>
   </div>
@@ -235,7 +240,7 @@ onAuthStateChanged(auth, user => {
       const on = r.lastSeen && (Date.now() - r.lastSeen < 2 * 86400000);
       el.innerHTML = `<div><span class="dot" style="background:${on ? "var(--green)" : "#C9D2E0"}"></span><b></b><div class="muted" style="margin:2px 0 0"></div></div><span>›</span>`;
       el.querySelector("b").textContent = r.name || "מכשיר";
-      el.querySelector(".muted").textContent = `${r.model || ""} · גרסה ${r.version || "?"} · ${ago(r.lastSeen)}${r.customerCanManage ? " · הלקוח מנהל" : ""}`;
+      el.querySelector(".muted").textContent = `${r.model || ""} · גרסה ${r.version || "?"} · ${ago(r.lastSeen)}${r.customerCanManage ? " · הלקוח מנהל" : ""}${r.released ? " · משוחרר" : ""}`;
       el.onclick = () => openDevice(r.id);
       $("list").appendChild(el);
     });
@@ -386,6 +391,11 @@ function render() {
   $("dname").textContent = cur.name || "מכשיר";
   $("dinfo").textContent = `${cur.model || ""} · גרסת מבצר ${cur.version || "?"} · ${ago(cur.lastSeen)}`;
   document.querySelector('[data-top="customerCanManage"]').checked = !!cur.customerCanManage;
+  $("rel").textContent = cur.released ? "החזרה לשירות (הפעלה מחדש)" : "שחרור המכשיר";
+  $("rel").className = cur.released ? "" : "danger";
+  $("relst").textContent = cur.released
+    ? "✓ המכשיר משוחרר: ההגנה כבויה והלקוח יכול להסיר את מבצר. \"החזרה לשירות\" מחזירה את ההגנה (הלקוח יצטרך לפתוח את מבצר)."
+    : "למשל כשהמנוי הסתיים: הסינון וחסימת האפליקציות נכבים, ההגנה מפני הסרה מתבטלת, והלקוח יכול להסיר את מבצר. המכשיר מתעדכן כשהוא מחובר לאינטרנט, תוך כרבע שעה לכל היותר.";
   const box = $("sets");
   box.innerHTML = "";
   SETTINGS.forEach(o => {
@@ -424,6 +434,11 @@ async function save(fields) {
 document.querySelector('[data-top="customerCanManage"]').onchange = e => save({ customerCanManage: e.target.checked });
 $("savemb").onclick = () => save({ "settings.manualBlocked": $("mblock").value.split(/\s+/).map(x => x.trim().toLowerCase()).filter(Boolean) });
 $("saveapps").onclick = () => save({ "settings.blockedApps": [...document.querySelectorAll("#apps input:checked")].map(x => x.dataset.p) });
+$("rel").onclick = async () => {
+  const on = !cur.released;
+  if (!confirm(on ? "לשחרר את \"" + (cur.name || "המכשיר") + "\"? ההגנה תיכבה והלקוח יוכל להסיר את מבצר." : "להחזיר את \"" + (cur.name || "המכשיר") + "\" לשירות?")) return;
+  await save({ released: on, releasedAt: Date.now() });
+};
 $("del").onclick = async () => {
   if (!confirm("להסיר את המכשיר מהרשימה?")) return;
   const id = cur.id;

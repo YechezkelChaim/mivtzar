@@ -404,7 +404,7 @@ async function cleanup() {
   } catch (e) { console.warn("cleanup", e); }
 }
 let unsubReq = null;
-const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play", remove: "הסרת מבצר" };
+const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play", remove: "הסרת מבצר", plus: "הצטרפות למבצר פלוס" };
 function watchRequests() {
   if (unsubReq) unsubReq();
   unsubReq = onSnapshot(query(collection(db, "requests"), where("status", "==", "pending")), snap => {
@@ -434,6 +434,18 @@ function watchRequests() {
         || (r.type === "site" && (NEVER_EXACT.includes(host) || NEVER_SITES.some(d => host === d || host.endsWith("." + d))));
       el.querySelector(".w").textContent = (r.reason ? "סיבה: " + r.reason : "") +
         (r.type === "app" && BROWSERS.includes(r.target) ? (r.reason ? " · " : "") + "⚠️ זה דפדפן – אישור יפתח את כל האינטרנט בלי סינון. עדיף לדחות ולבקש מהלקוח לשלוח את האתר עצמו מדפדפן מבצר." : "");
+      if (r.type === "plus") {
+        el.querySelectorAll("button[data-ms]").forEach(b => b.remove());
+        const ok = document.createElement("button");
+        ok.textContent = "אישור – מבצר פלוס";
+        ok.onclick = async () => {
+          try {
+            await updateDoc(doc(db, "devices", r.deviceId), { plusUntil: -1 });
+            await updateDoc(doc(db, "requests", r.id), { status: "approved", durationMs: -1, answeredAt: Date.now() });
+          } catch (e) { alert("לא הצליח: " + e.message); }
+        };
+        el.querySelector("button[data-no]").before(ok);
+      }
       if (r.type === "remove") {
         el.querySelectorAll("button[data-ms]").forEach(b => b.remove());
         const ok = document.createElement("button");
@@ -477,7 +489,7 @@ $("pair").onclick = async () => {
     if (s.empty) { msg.textContent = "לא נמצא מכשיר עם הקוד הזה. בדוק שהקוד במכשיר עדיין מוצג."; msg.classList.add("err"); return; }
     const d = s.docs[0];
     await updateDoc(d.ref, { paired: true, pairedAt: Date.now(), name: name || d.data().model || "מכשיר", customerCanManage: false,
-      settings: d.data().settings || {}, pairCode: "", adminPin, adminPhone, plusUntil: -1 }); // בינתיים (עד Google Play) – כל מכשיר חדש מקבל מבצר פלוס בחינם
+      settings: d.data().settings || {}, pairCode: "", adminPin, adminPhone, plusUntil: 0 }); // מכשיר חדש מתחיל בבסיס. מבצר פלוס – רק אחרי אישור המנהל
     msg.textContent = "✓ המכשיר חובר"; msg.classList.add("ok");
     $("pcode").value = ""; $("pname").value = "";
   } catch (e) { msg.textContent = "החיבור לא הצליח: " + e.message; msg.classList.add("err"); }

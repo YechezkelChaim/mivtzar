@@ -93,12 +93,15 @@
   <div id="home" class="hide">
     <div id="tilesView">
       <div class="hello"><h2>שלום 👋</h2><p class="muted">מה עושים היום?</p></div>
+      <div id="notifBox" class="card hide" style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+        <div><b>התראה על כל בקשה חדשה</b><div class="muted" style="margin:2px 0 0">צליל והודעה בטלפון או במחשב, כשהאתר פתוח (גם ברקע).</div></div>
+        <button id="notifOn" style="width:auto;margin:0;flex:none">הפעלה</button>
+      </div>
       <div class="tiles">
 <div class="tile" role="button" tabindex="0" data-open="reqs"><span class="cnt" id="cnt-reqs"></span><span class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><div><b>בקשות ממתינות</b><div class="st" id="st-reqs">טוען…</div></div></div>
 <div class="tile" role="button" tabindex="0" data-open="devs"><span class="cnt" id="cnt-devs"></span><span class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span><div><b>המכשירים שלי</b><div class="st" id="st-devs">טוען…</div></div></div>
 <div class="tile" role="button" tabindex="0" data-open="pair"><span class="cnt" id="cnt-pair"></span><span class="ic c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span><div><b>חיבור מכשיר חדש</b><div class="st" id="st-pair">עם קוד של 6 ספרות מהטלפון</div></div></div>
 <div class="tile" role="button" tabindex="0" data-open="gifts"><span class="cnt" id="cnt-gifts"></span><span class="ic c-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span><div><b>קודי מתנה</b><div class="st" id="st-gifts">מבצר פלוס לנסיינים</div></div></div>
-<div class="tile" role="button" tabindex="0" data-open="wa"><span class="cnt" id="cnt-wa"></span><span class="ic c-wa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.7-5A9 9 0 1 1 8 19.3L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg></span><div><b>וואטסאפ לבקשות</b><div class="st" id="st-wa">טוען…</div></div></div>
 <div class="tile" role="button" tabindex="0" data-open="code"><span class="cnt" id="cnt-code"></span><span class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3 21 2M17 6l3 3M15 8l2 2"/></svg></span><div><b>קוד המנהל</b><div class="st" id="st-code">טוען…</div></div></div>
       </div>
     </div>
@@ -131,16 +134,6 @@
       <button id="pnew">יצירת קוד חדש</button>
       <div class="msg" id="pmsg2"></div>
       <div id="promos"></div>
-    </div>
-    </section>
-    <section class="hide" data-sec="wa">
-      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>וואטסאפ לבקשות</h2></div>
-    <div class="card">
-            <p class="muted">כשלקוח מבקש אישור, הוא יכול לשלוח לך הודעה מוכנה בוואטסאפ למספר הזה. אפשר לשנות בכל זמן – זה מתעדכן בכל המכשירים.</p>
-      <p id="phst"></p>
-      <div class="row"><input type="text" id="phone" inputmode="tel" placeholder="מספר וואטסאפ, למשל 050-1234567" dir="ltr" aria-label="מספר וואטסאפ, למשל 050-1234567"></div>
-      <button id="phsave">שמירת המספר</button>
-      <div class="msg" id="phmsg"></div>
     </div>
     </section>
     <section class="hide" data-sec="code">
@@ -424,9 +417,7 @@ async function loadAdminPin() {
     adminPin = d.exists() && d.data().pin ? d.data().pin : null;
     adminPhone = d.exists() && d.data().phone ? d.data().phone : "";
   } catch (e) { adminPin = null; }
-  $("phst").textContent = adminPhone ? "המספר הנוכחי: +" + adminPhone : "עוד לא נקבע מספר.";
   $("acst").textContent = adminPin ? "✓ הוגדר קוד מנהל." : "עוד לא הוגדר קוד מנהל. צריך להגדיר אותו לפני שמחברים מכשירים.";
-  setTile("wa", adminPhone ? "‎+" + adminPhone : "עוד לא נקבע מספר");
   setTile("code", adminPin ? "✓ מוגדר" : "צריך להגדיר");
   $("acst").style.color = adminPin ? "#1E8E3E" : "#C62828";
 }
@@ -449,21 +440,6 @@ $("acsave").onclick = async () => {
   } catch (e) { msg.textContent = "השמירה לא הצליחה: " + e.message; msg.classList.add("err"); }
 };
 
-$("phsave").onclick = async () => {
-  const msg = $("phmsg"); msg.className = "msg";
-  let d = $("phone").value.replace(/\D/g, "");
-  if (d.startsWith("0")) d = "972" + d.slice(1);
-  if (d.length < 11 || d.length > 13) { msg.textContent = "המספר לא תקין."; msg.classList.add("err"); return; }
-  msg.textContent = "שומר…";
-  try {
-    await setDoc(doc(db, "admin", "config"), { phone: d }, { merge: true });
-    const all = await getDocs(query(collection(db, "devices"), where("paired", "==", true)));
-    await Promise.all(all.docs.map(x => updateDoc(x.ref, { adminPhone: d })));
-    $("phone").value = "";
-    msg.textContent = "✓ נשמר ונשלח ל-" + all.size + " מכשירים."; msg.classList.add("ok");
-    loadAdminPin();
-  } catch (e) { msg.textContent = "השמירה לא הצליחה: " + e.message; msg.classList.add("err"); }
-};
 
 // ----- בקשות אישור מהמכשירים -----
 // ניקוי לפי מדיניות הפרטיות: טלפונים שלא חוברו ובקשות – אחרי 90 יום
@@ -477,6 +453,38 @@ async function cleanup() {
   } catch (e) { console.warn("cleanup", e); }
 }
 let unsubReq = null;
+let knownReqs = null; // הבקשות שכבר ראינו – כדי להתריע רק על חדשות
+function beep() {
+  try {
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.18].forEach(t => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(c.destination);
+      g.gain.setValueAtTime(0.25, c.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + t + 0.15);
+      o.start(c.currentTime + t); o.stop(c.currentTime + t + 0.16);
+    });
+  } catch (e) {}
+}
+function alertNew(r) {
+  beep();
+  const who = devNames[r.deviceId] || "מכשיר", what = (TYPE[r.type] || "") + ": " + (r.label || r.target);
+  try {
+    if ("Notification" in window && Notification.permission === "granted") {
+      const n = new Notification("בקשה חדשה במבצר", { body: who + " – " + what, tag: r.id });
+      n.onclick = () => { window.focus(); openSec("reqs"); n.close(); };
+    }
+  } catch (e) {}
+}
+function updateNotifBox() {
+  const ok = !("Notification" in window) || Notification.permission === "granted";
+  $("notifBox").classList.toggle("hide", ok);
+  $("notifBox").style.display = ok ? "none" : "flex";
+}
+$("notifOn").onclick = async () => {
+  try { await Notification.requestPermission(); } catch (e) {}
+  beep();
+  updateNotifBox();
+};
 const TYPE = { app: "אפליקציה", site: "אתר", play: "פתיחת Google Play", remove: "הסרת מבצר", plus: "הצטרפות למבצר פלוס" };
 function watchRequests() {
   if (unsubReq) unsubReq();
@@ -485,6 +493,11 @@ function watchRequests() {
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
     rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     $("reqcard").style.borderColor = rows.length ? "var(--orange)" : "";
+    const ids = new Set(rows.map(r => r.id));
+    if (knownReqs) rows.filter(r => !knownReqs.has(r.id)).forEach(alertNew);
+    knownReqs = ids;
+    document.title = (rows.length ? "(" + rows.length + ") " : "") + "מבצר – ניהול";
+    updateNotifBox();
     setTile("reqs", rows.length ? rows.length + (rows.length === 1 ? " בקשה מחכה לך" : " בקשות מחכות לך") : "אין בקשות כרגע", rows.length);
     $("reqs").innerHTML = rows.length ? "" : "<p>אין בקשות.</p>";
     rows.forEach(r => {

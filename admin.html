@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>מבצר – ניהול</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root { --blue:#1E4FA3; --dark:#123572; --orange:#F28C1E; --bg:#F4F6FA; --text:#1B2433; --muted:#5B6474; --green:#1E8E4E; --red:#B3261E; --line:#E1E6EF; }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text); font-family:"Segoe UI",Arial,sans-serif; font-size:16px; }
-  header { background:var(--blue); color:#fff; padding:14px 18px; display:flex; align-items:center; gap:12px; }
-  header h1 { font-size:21px; margin:0; flex:1; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:"Heebo","Segoe UI",Arial,sans-serif; font-size:16px; }
+  header { background:var(--dark); color:#fff; padding:14px 18px; display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:21px; margin:0; flex:1; display:flex; align-items:center; gap:10px; font-weight:800; }
+  header h1 svg { width:30px; height:30px; }
   header button { width:auto; margin:0; padding:8px 14px; font-size:14px; background:#fff; color:var(--blue); border-color:#fff; }
   main { max-width:760px; margin:0 auto; padding:14px; }
   .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:12px; }
@@ -43,10 +46,33 @@
   .msg { min-height:1.3em; font-weight:600; }
   .ok { color:var(--green); } .err { color:var(--red); }
   .hide { display:none; }
+  /* ----- מסך הבית: ריבועים לפי קטגוריות ----- */
+  .hello { margin:6px 2px 14px; }
+  .hello h2 { font-size:22px; font-weight:800; margin:0; }
+  .hello p { margin:2px 0 0; }
+  .tiles { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; }
+  .tile { position:relative; background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px 14px 14px; cursor:pointer;
+          min-height:132px; display:flex; flex-direction:column; gap:8px; text-align:right; transition:transform .12s, box-shadow .12s; }
+  .tile:hover, .tile:focus-visible { transform:translateY(-2px); box-shadow:0 8px 22px rgba(18,53,114,.12); outline:none; border-color:#C9D2E0; }
+  .tile .ic { width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; }
+  .tile .ic svg { width:26px; height:26px; }
+  .tile b { font-size:17px; font-weight:700; color:var(--text); }
+  .tile .st { font-size:14px; color:var(--muted); line-height:1.35; }
+  .tile .cnt { position:absolute; top:12px; left:12px; min-width:26px; height:26px; padding:0 8px; border-radius:13px; background:var(--orange);
+               color:#fff; font-weight:800; font-size:14px; display:none; align-items:center; justify-content:center; }
+  .tile.has .cnt { display:flex; }
+  .tile.wide { grid-column:1 / -1; min-height:0; flex-direction:row; align-items:center; gap:14px; }
+  .c-orange { background:#FFF1E0; color:#C46A00; } .c-blue { background:#E7EEFB; color:var(--blue); } .c-green { background:#E4F4EA; color:var(--green); }
+  .c-violet { background:#EEEAFB; color:#5B45B8; } .c-wa { background:#E3F6EC; color:#128C4B; } .c-gray { background:#EEF1F5; color:#3B4659; }
+  .secbar { display:flex; align-items:center; gap:10px; margin:4px 0 12px; }
+  .secbar button { width:auto; margin:0; padding:8px 14px; }
+  .secbar h2 { margin:0; font-size:20px; font-weight:800; }
+  @media (max-width:520px) { .row { flex-direction:column; align-items:stretch; } }
+  @media (max-width:380px) { .tile { padding:14px 12px; min-height:120px; } .tile b { font-size:16px; } }
 </style>
 </head>
 <body>
-<header><h1>מבצר – ניהול</h1><button id="out" class="hide">יציאה</button></header>
+<header><h1><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="#fff" d="M50,8L82,20V46C82,68 68,84 50,92C32,84 18,68 18,46V20Z"/><path fill="#1E4FA3" d="M31,44h5v-5h5v5h4v-5h5v5h5v-5h5v5h4v-5h5v5V72C64,79 57,83 50,86C43,83 36,79 31,72Z"/><path fill="#F28C1E" d="M44,80V68a6,6 0,0 1,12 0V82.5C53,84 51,85 50,85.5C48,85 46,84 44,82.5Z"/></svg>מבצר – ניהול</h1><button id="out" class="hide">יציאה</button></header>
 <main>
   <div id="login" class="card hide">
     <h2>כניסה למנהל</h2>
@@ -65,45 +91,68 @@
   </div>
 
   <div id="home" class="hide">
+    <div id="tilesView">
+      <div class="hello"><h2>שלום 👋</h2><p class="muted">מה עושים היום?</p></div>
+      <div class="tiles">
+<div class="tile" role="button" tabindex="0" data-open="reqs"><span class="cnt" id="cnt-reqs"></span><span class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><div><b>בקשות ממתינות</b><div class="st" id="st-reqs">טוען…</div></div></div>
+<div class="tile" role="button" tabindex="0" data-open="devs"><span class="cnt" id="cnt-devs"></span><span class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span><div><b>המכשירים שלי</b><div class="st" id="st-devs">טוען…</div></div></div>
+<div class="tile" role="button" tabindex="0" data-open="pair"><span class="cnt" id="cnt-pair"></span><span class="ic c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span><div><b>חיבור מכשיר חדש</b><div class="st" id="st-pair">עם קוד של 6 ספרות מהטלפון</div></div></div>
+<div class="tile" role="button" tabindex="0" data-open="gifts"><span class="cnt" id="cnt-gifts"></span><span class="ic c-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span><div><b>קודי מתנה</b><div class="st" id="st-gifts">מבצר פלוס לנסיינים</div></div></div>
+<div class="tile" role="button" tabindex="0" data-open="wa"><span class="cnt" id="cnt-wa"></span><span class="ic c-wa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.7-5A9 9 0 1 1 8 19.3L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg></span><div><b>וואטסאפ לבקשות</b><div class="st" id="st-wa">טוען…</div></div></div>
+<div class="tile" role="button" tabindex="0" data-open="code"><span class="cnt" id="cnt-code"></span><span class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3 21 2M17 6l3 3M15 8l2 2"/></svg></span><div><b>קוד המנהל</b><div class="st" id="st-code">טוען…</div></div></div>
+      </div>
+    </div>
+    <section class="hide" data-sec="reqs">
+      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>בקשות ממתינות</h2></div>
     <div class="card" id="reqcard">
-      <h2>בקשות ממתינות</h2>
-      <div id="reqs"><p>אין בקשות.</p></div>
+            <div id="reqs"><p>אין בקשות.</p></div>
     </div>
+    </section>
+    <section class="hide" data-sec="devs">
+      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>המכשירים שלי</h2></div>
     <div class="card">
-      <h2>קוד המנהל שלי</h2>
-      <p id="acst">טוען…</p>
-      <p class="muted">עם הקוד הזה נכנסים בכל מכשיר להגדרות המלאות ומאשרים אפליקציות ואתרים. הלקוח נכנס עם הקוד האישי שלו ורואה רק את מה שמותר לו. הקוד נשמר מוצפן – רשום אותו אצלך.</p>
-      <div class="row"><input type="password" id="ac1" inputmode="numeric" maxlength="8" placeholder="קוד חדש (4–8 ספרות)" dir="ltr" aria-label="קוד חדש (4–8 ספרות)"><input type="password" id="ac2" inputmode="numeric" maxlength="8" placeholder="שוב את הקוד" dir="ltr" aria-label="שוב את הקוד"></div>
-      <button id="acsave">שמירת הקוד</button>
-      <div class="msg" id="acmsg"></div>
+            <div id="list"><p>טוען…</p></div>
     </div>
+    </section>
+    <section class="hide" data-sec="pair">
+      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>חיבור מכשיר חדש</h2></div>
     <div class="card">
-      <h2>וואטסאפ לבקשות</h2>
-      <p class="muted">כשלקוח מבקש אישור, הוא יכול לשלוח לך הודעה מוכנה בוואטסאפ למספר הזה. אפשר לשנות בכל זמן – זה מתעדכן בכל המכשירים.</p>
-      <p id="phst"></p>
-      <div class="row"><input type="text" id="phone" inputmode="tel" placeholder="מספר וואטסאפ, למשל 050-1234567" dir="ltr" aria-label="מספר וואטסאפ, למשל 050-1234567"></div>
-      <button id="phsave">שמירת המספר</button>
-      <div class="msg" id="phmsg"></div>
-    </div>
-    <div class="card">
-      <h2>חיבור מכשיר חדש</h2>
-      <p>במכשיר: מבצר ← לוח הבקרה ← "ניהול מרחוק". שם מופיע קוד של 6 ספרות.</p>
+            <p>במכשיר: מבצר ← לוח הבקרה ← "ניהול מרחוק". שם מופיע קוד של 6 ספרות.</p>
       <div class="row"><input type="text" id="pcode" inputmode="numeric" maxlength="7" placeholder="קוד החיבור" aria-label="קוד החיבור"><input type="text" id="pname" placeholder="שם (למשל: הטלפון של משה)" aria-label="שם (למשל: הטלפון של משה)"></div>
       <button id="pair">חיבור</button>
       <div class="msg" id="pmsg"></div>
     </div>
+    </section>
+    <section class="hide" data-sec="gifts">
+      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>קודי מתנה למבצר פלוס</h2></div>
     <div class="card">
-      <h2>קודי מתנה למבצר פלוס</h2>
-      <p class="muted">קוד שנותנים ללקוח (למשל לנסיינים). הלקוח מקיש אותו במבצר ← "הצטרפות למבצר פלוס" ← "יש לי קוד", ומקבל את מבצר פלוס כמו במנוי. כל קוד – לטלפון אחד. "ביטול" סוגר את המנוי של מי שהשתמש בקוד.</p>
+            <p class="muted">קוד שנותנים ללקוח (למשל לנסיינים). הלקוח מקיש אותו במבצר ← "הצטרפות למבצר פלוס" ← "יש לי קוד", ומקבל את מבצר פלוס כמו במנוי. כל קוד – לטלפון אחד. "ביטול" סוגר את המנוי של מי שהשתמש בקוד.</p>
       <div class="row"><input type="text" id="pnote" placeholder="למי הקוד (לא חובה)" aria-label="למי הקוד (לא חובה)"></div>
       <button id="pnew">יצירת קוד חדש</button>
       <div class="msg" id="pmsg2"></div>
       <div id="promos"></div>
     </div>
+    </section>
+    <section class="hide" data-sec="wa">
+      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>וואטסאפ לבקשות</h2></div>
     <div class="card">
-      <h2>המכשירים שלי</h2>
-      <div id="list"><p>טוען…</p></div>
+            <p class="muted">כשלקוח מבקש אישור, הוא יכול לשלוח לך הודעה מוכנה בוואטסאפ למספר הזה. אפשר לשנות בכל זמן – זה מתעדכן בכל המכשירים.</p>
+      <p id="phst"></p>
+      <div class="row"><input type="text" id="phone" inputmode="tel" placeholder="מספר וואטסאפ, למשל 050-1234567" dir="ltr" aria-label="מספר וואטסאפ, למשל 050-1234567"></div>
+      <button id="phsave">שמירת המספר</button>
+      <div class="msg" id="phmsg"></div>
     </div>
+    </section>
+    <section class="hide" data-sec="code">
+      <div class="secbar"><button class="sec" data-home>→ חזרה</button><h2>קוד המנהל</h2></div>
+    <div class="card">
+            <p id="acst">טוען…</p>
+      <p class="muted">עם הקוד הזה נכנסים במכשיר לכניסת מנהל (5 הקשות על הסמל במבצר, ואז הקוד) – למשל כשאין אינטרנט. הקוד נשמר מוצפן – רשום אותו אצלך.</p>
+      <div class="row"><input type="password" id="ac1" inputmode="numeric" maxlength="8" placeholder="קוד חדש (4–8 ספרות)" dir="ltr" aria-label="קוד חדש (4–8 ספרות)"><input type="password" id="ac2" inputmode="numeric" maxlength="8" placeholder="שוב את הקוד" dir="ltr" aria-label="שוב את הקוד"></div>
+      <button id="acsave">שמירת הקוד</button>
+      <div class="msg" id="acmsg"></div>
+    </div>
+    </section>
   </div>
 
   <div id="device" class="hide">
@@ -180,6 +229,24 @@ const app = initializeApp({
 const auth = getAuth(app), db = getFirestore(app);
 const $ = id => document.getElementById(id);
 const show = id => ["login", "home", "device"].forEach(x => $(x).classList.toggle("hide", x !== id));
+// מסך הבית: ריבועים. לחיצה על ריבוע פותחת רק את הקטגוריה שלו
+let curSec = null;
+function openSec(key) {
+  curSec = key;
+  $("tilesView").classList.toggle("hide", !!key);
+  document.querySelectorAll("[data-sec]").forEach(x => x.classList.toggle("hide", x.dataset.sec !== key));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("[data-open]").forEach(t => {
+  t.onclick = () => openSec(t.dataset.open);
+  t.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSec(t.dataset.open); } };
+});
+document.querySelectorAll("[data-home]").forEach(b => b.onclick = () => openSec(null));
+function setTile(key, text, count) {
+  const st = $("st-" + key); if (st && text != null) st.textContent = text;
+  const c = $("cnt-" + key), t = c && c.parentElement;
+  if (c) { c.textContent = count || ""; t.classList.toggle("has", !!count); }
+}
 
 // הגדרות. customer = גם הלקוח יכול לשנות (כשמותר לו)
 const SETTINGS = [
@@ -259,6 +326,8 @@ onAuthStateChanged(auth, user => {
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
     rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "he"));
     $("list").innerHTML = rows.length ? "" : "<p>עוד אין מכשירים מחוברים.</p>";
+    const plusN = rows.filter(r => plusActive(r)).length;
+    setTile("devs", rows.length ? rows.length + " מכשירים · " + plusN + " בפלוס" : "עוד אין מכשירים");
     rows.forEach(r => { devNames[r.id] = r.name || r.model || "מכשיר"; });
     if (!namesReady) { namesReady = true; watchRequests(); watchPromos(); }
     rows.forEach(r => {
@@ -297,6 +366,8 @@ function watchPromos() {
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
     rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     $("promos").innerHTML = "";
+    const free = rows.filter(r => !r.revoked && !r.usedBy).length, used = rows.filter(r => !r.revoked && r.usedBy).length;
+    setTile("gifts", rows.length ? free + " פנויים · " + used + " בשימוש" : "מבצר פלוס לנסיינים");
     rows.forEach(r => {
       const el = document.createElement("div");
       el.style.cssText = "border-top:1px solid #E3E8F0;padding:8px 0;display:flex;justify-content:space-between;align-items:center;gap:8px";
@@ -355,6 +426,8 @@ async function loadAdminPin() {
   } catch (e) { adminPin = null; }
   $("phst").textContent = adminPhone ? "המספר הנוכחי: +" + adminPhone : "עוד לא נקבע מספר.";
   $("acst").textContent = adminPin ? "✓ הוגדר קוד מנהל." : "עוד לא הוגדר קוד מנהל. צריך להגדיר אותו לפני שמחברים מכשירים.";
+  setTile("wa", adminPhone ? "‎+" + adminPhone : "עוד לא נקבע מספר");
+  setTile("code", adminPin ? "✓ מוגדר" : "צריך להגדיר");
   $("acst").style.color = adminPin ? "#1E8E3E" : "#C62828";
 }
 $("acsave").onclick = async () => {
@@ -412,6 +485,7 @@ function watchRequests() {
     snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
     rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     $("reqcard").style.borderColor = rows.length ? "var(--orange)" : "";
+    setTile("reqs", rows.length ? rows.length + (rows.length === 1 ? " בקשה מחכה לך" : " בקשות מחכות לך") : "אין בקשות כרגע", rows.length);
     $("reqs").innerHTML = rows.length ? "" : "<p>אין בקשות.</p>";
     rows.forEach(r => {
       const el = document.createElement("div");
@@ -504,7 +578,7 @@ function openDevice(id) {
     render();
   });
 }
-$("back").onclick = () => { if (unsubDev) unsubDev(); unsubDev = null; show("home"); };
+$("back").onclick = () => { if (unsubDev) unsubDev(); unsubDev = null; show("home"); openSec("devs"); };
 
 function render() {
   const s = cur.settings || {};

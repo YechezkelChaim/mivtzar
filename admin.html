@@ -342,7 +342,8 @@ onAuthStateChanged(auth, user => {
     $("list").innerHTML = rows.length ? "" : "<p>עוד אין מכשירים מחוברים.</p>";
     const plusN = rows.filter(r => plusActive(r)).length;
     setTile("devs", rows.length ? rows.length + " מכשירים · " + plusN + " בפלוס" : "עוד אין מכשירים");
-    rows.forEach(r => { devNames[r.id] = r.name || r.model || "מכשיר"; });
+    rows.forEach(r => { devNames[r.id] = r.name || r.model || "מכשיר"; devRows[r.id] = r; });
+    if (typeof rerenderThreads === "function") rerenderThreads();
     if (!namesReady) { namesReady = true; watchRequests(); watchPromos(); watchMessages(); }
     rows.forEach(r => {
       const el = document.createElement("div");
@@ -426,6 +427,7 @@ function ago(t) {
 // ----- קוד המנהל: נשמר רק כגיבוב (PBKDF2), אותו גיבוב נשלח לכל מכשיר -----
 let adminPin = null, adminPhone = "";
 const devNames = {};
+const devRows = {}; // כל פרטי המכשירים הרשומים (למשל: בסיס או פלוס)
 const b64 = u8 => btoa(String.fromCharCode(...u8));
 async function pinHash(pin, salt) {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
@@ -488,15 +490,22 @@ async function deviceLabel(id) {
   } catch (e) { extraNames[id] = "מכשיר"; }
   return extraNames[id];
 }
+let rerenderThreads = null;
 function watchMessages() {
   if (unsubMsg) unsubMsg();
   unsubMsg = onSnapshot(collection(db, "messages"), async snap => {
+    rerenderThreads = () => renderThreads(snap);
+    await renderThreads(snap, true);
+  }, e => { $("threads").innerHTML = '<div class="card"><p class="err">לא הצלחתי לטעון הודעות: ' + e.message + "</p></div>"; });
+}
+async function renderThreads(snap, fresh) {
+  {
     const all = [];
     snap.forEach(d => all.push({ id: d.id, ...d.data() }));
     const unread = all.filter(m => m.from === "device" && !m.readByAdmin);
     setTile("msgs", unread.length ? unread.length + (unread.length === 1 ? " הודעה חדשה" : " הודעות חדשות") : (all.length ? "אין הודעות חדשות" : "עוד אין הודעות"), unread.length);
     const ids = new Set(all.map(m => m.id));
-    if (knownMsgs) all.filter(m => !knownMsgs.has(m.id) && m.from === "device").forEach(async m => {
+    if (fresh && knownMsgs) all.filter(m => !knownMsgs.has(m.id) && m.from === "device").forEach(async m => {
       beep();
       try {
         if ("Notification" in window && Notification.permission === "granted") {
@@ -505,7 +514,7 @@ function watchMessages() {
         }
       } catch (e) {}
     });
-    knownMsgs = ids;
+    if (fresh) knownMsgs = ids;
     // שיחות לפי מכשיר, האחרונה למעלה
     const by = {};
     all.forEach(m => { (by[m.deviceId] = by[m.deviceId] || []).push(m); });
@@ -523,6 +532,14 @@ function watchMessages() {
       el.innerHTML = '<h2></h2><div class="msgs"></div><textarea aria-label="תשובה ללקוח" placeholder="תשובה ללקוח"></textarea>'
         + '<div style="display:flex;gap:6px;flex-wrap:wrap"><button>שליחת תשובה</button>' + (hasNew ? '<button class="sec" data-read>סימון כנקרא</button>' : '') + '</div><div class="msg"></div>';
       el.querySelector("h2").textContent = await deviceLabel(t.id);
+      // ליד השם: בסיס או פלוס, כדי להתאים את התשובה לרמת ההגנה
+      const r = devRows[t.id];
+      const plus = r && plusActive(r);
+      const tag = document.createElement("span");
+      tag.className = "badge";
+      tag.style.cssText = plus ? "background:#E7EEFB;color:#1E4FA3" : "background:#EEF1F5;color:#3B4659";
+      tag.textContent = !r ? "לא רשום · בסיס" : plus ? "מבצר פלוס" : "בסיס";
+      el.querySelector("h2").appendChild(tag);
       const list = el.querySelector(".msgs");
       t.msgs.forEach(m => {
         const b = document.createElement("div");
@@ -555,7 +572,7 @@ function watchMessages() {
       if (rb) rb.onclick = () => markRead();
       box.appendChild(el);
     }
-  }, e => { $("threads").innerHTML = '<div class="card"><p class="err">לא הצלחתי לטעון הודעות: ' + e.message + "</p></div>"; });
+  }
 }
 
 let unsubReq = null;

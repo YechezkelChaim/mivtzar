@@ -163,9 +163,18 @@
       </div>
     </div>
     <div class="card">
+      <h2>הקוד האישי של הלקוח</h2>
+      <p id="cpinst"></p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="sec" id="cpinset">קביעת קוד חדש</button><button class="danger" id="cpindel">מחיקת הקוד</button>
+      </div>
+    </div>
+    <div class="card">
       <h2>הסרת מבצר</h2>
-      <p id="remst">אישור להסרה: ל-30 דקות הלקוח יכול להקיש 5 פעמים על הסמל במבצר וללחוץ "הסרת מבצר". אחרי 30 דקות ההגנה חוזרת להיות נעולה.</p>
-      <button class="danger" id="remok">אישור הסרה ל-30 דקות</button>
+      <p id="remst"></p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="danger" data-rem="5">אישור הסרה ל-5 דקות</button><button class="danger" data-rem="30">אישור הסרה ל-30 דקות</button>
+      </div>
     </div>
     <div class="card">
       <div class="tog"><div><b>הלקוח יכול לנהל</b><small>כבוי – במכשיר אי אפשר לשנות כלום (למשל מכשיר של ילד). דלוק – הלקוח יכול לשנות את מה שמסומן "גם הלקוח".</small></div>
@@ -540,17 +549,19 @@ function watchRequests() {
       }
       if (r.type === "remove") {
         el.querySelectorAll("button[data-ms]").forEach(b => b.remove());
-        const ok = document.createElement("button");
-        ok.textContent = "אישור הסרה ל-30 דקות";
-        ok.className = "danger";
-        ok.onclick = async () => {
-          if (!confirm("לאשר הסרה של מבצר במכשיר \"" + (devNames[r.deviceId] || "המכשיר") + "\"?")) return;
-          try {
-            await updateDoc(doc(db, "devices", r.deviceId), { removeUntil: Date.now() + 30 * 60000 });
-            await updateDoc(doc(db, "requests", r.id), { status: "approved", durationMs: 30 * 60000, answeredAt: Date.now() });
-          } catch (e) { alert("לא הצליח: " + e.message); }
-        };
-        el.querySelector("button[data-no]").before(ok);
+        [5, 30].forEach(m => {
+          const ok = document.createElement("button");
+          ok.textContent = "אישור הסרה ל-" + m + " דקות";
+          ok.className = "danger";
+          ok.onclick = async () => {
+            if (!confirm("לאשר הסרה של מבצר במכשיר \"" + (devNames[r.deviceId] || "המכשיר") + "\" ל-" + m + " דקות?")) return;
+            try {
+              await updateDoc(doc(db, "devices", r.deviceId), { removeUntil: Date.now() + m * 60000 });
+              await updateDoc(doc(db, "requests", r.id), { status: "approved", durationMs: m * 60000, answeredAt: Date.now() });
+            } catch (e) { alert("לא הצליח: " + e.message); }
+          };
+          el.querySelector("button[data-no]").before(ok);
+        });
       }
       if (never) {
         el.querySelectorAll("button[data-ms]").forEach(b => b.remove());
@@ -606,10 +617,22 @@ function render() {
   $("plusst").textContent = plusActive(cur)
     ? "✓ " + planLabel(cur) + ". חיפוש בגוגל, הגנה בוואטסאפ, בקשות אישור ובחירת מצב תמונות פתוחים."
     : "חבילה בסיסית: סינון אתרים, חסימת אפליקציות וחנות מבצר. חיפוש בגוגל, וואטסאפ ובקשות – נעולים.";
+  const cp = cur.customerPin || "";
+  $("cpinst").innerHTML = "";
+  if (cp) {
+    $("cpinst").append("הקוד: ");
+    const b = document.createElement("b"); b.dir = "ltr"; b.style.cssText = "font-size:22px;letter-spacing:3px"; b.textContent = cp;
+    $("cpinst").append(b);
+  } else {
+    $("cpinst").textContent = cur.hasPin
+      ? "יש בטלפון קוד שנוצר לפני הרישום אצלך, והוא לא ידוע. אפשר לקבוע לו קוד חדש."
+      : "אין קוד. הלקוח נכנס למבצר בלי קוד. כשהוא יקבע קוד בטלפון, הוא יופיע כאן.";
+  }
+  $("cpindel").style.display = (cp || cur.hasPin) ? "" : "none";
   const ru = cur.removeUntil || 0;
   $("remst").textContent = ru > Date.now()
     ? "✓ ההסרה מאושרת עד " + new Date(ru).toLocaleTimeString("he-IL", {hour: "2-digit", minute: "2-digit"}) + ". הלקוח מקיש 5 פעמים על הסמל במבצר ולוחץ \"הסרת מבצר\"."
-    : "אישור להסרה: ל-30 דקות הלקוח יכול להקיש 5 פעמים על הסמל במבצר וללחוץ \"הסרת מבצר\". אחרי 30 דקות ההגנה חוזרת להיות נעולה.";
+    : "אחרי האישור, בזמן שבחרת, הלקוח יכול להקיש 5 פעמים על הסמל במבצר וללחוץ \"הסרת מבצר\". בסוף הזמן ההגנה חוזרת להיות נעולה.";
   $("rel").textContent = cur.released ? "החזרה לשירות (הפעלה מחדש)" : "שחרור המכשיר";
   $("rel").className = cur.released ? "" : "danger";
   $("relst").textContent = cur.released
@@ -662,10 +685,21 @@ document.querySelectorAll("[data-plus]").forEach(b => b.onclick = async () => {
     await save({ plusUntil: 0, promoCode: "" });
   }
 });
-$("remok").onclick = async () => {
-  if (!confirm("לאשר ל\"" + (cur.name || "המכשיר") + "\" להסיר את מבצר בחצי השעה הקרובה?")) return;
-  await save({ removeUntil: Date.now() + 30 * 60000 });
+$("cpinset").onclick = async () => {
+  const v = (prompt("קוד אישי חדש ל\"" + (cur.name || "המכשיר") + "\" (4 עד 8 ספרות):") || "").trim();
+  if (!v) return;
+  if (!/^\d{4,8}$/.test(v)) { alert("הקוד צריך להיות 4 עד 8 ספרות."); return; }
+  await save({ customerPin: v, customerPinAt: Date.now() });
 };
+$("cpindel").onclick = async () => {
+  if (!confirm("למחוק את הקוד האישי ב\"" + (cur.name || "המכשיר") + "\"? הלקוח ייכנס למבצר בלי קוד.")) return;
+  await save({ customerPin: "", customerPinAt: Date.now() });
+};
+document.querySelectorAll("[data-rem]").forEach(b => b.onclick = async () => {
+  const m = Number(b.dataset.rem);
+  if (!confirm("לאשר ל\"" + (cur.name || "המכשיר") + "\" להסיר את מבצר ב-" + m + " הדקות הקרובות?")) return;
+  await save({ removeUntil: Date.now() + m * 60000 });
+});
 $("revoke").onclick = async () => {
   if (!confirm("לבטל את כל האישורים במכשיר \"" + (cur.name || "המכשיר") + "\"? אפליקציות ואתרים שאושרו ייחסמו שוב.")) return;
   await save({ revokeAt: Date.now() });
